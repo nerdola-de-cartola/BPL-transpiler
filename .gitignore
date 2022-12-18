@@ -37,6 +37,7 @@
 *.hex
 
 # Debug files
+*.vscode/
 *.dSYM/
 *.su
 *.idb
@@ -50,3 +51,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Documents
+*.pdf
