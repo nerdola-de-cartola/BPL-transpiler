@@ -9,21 +9,45 @@
 #define CALLEE_SAVED 1
 
 #define MAX_REGISTER 16
+#define MAX_VARIABLE 5
 
-typedef struct {
+#define INT 0
+#define VET_INT 1
+
+typedef struct
+{
    char name32[4];
    char name64[4];
    bool free;
    int type;
 } Register;
 
+// Mine
+typedef struct
+{
+   int size;
+   int stackPosition;
+   int type;
+} Variable;
+//
+
+//==============================================================================
+// Variáveis Globais
+//==============================================================================
 
 Register REGISTERS[MAX_REGISTER];
+
+// Mine
+Variable VARIABLES[MAX_VARIABLE];
 
 FILE *F_SOURCE;
 FILE *F_OUTPUT;
 int LINE_COUNT;
 char BUFFER[MAX_LINE_SIZE];
+
+//==============================================================================
+// Declaração de Funções "Auxiliares"
+//==============================================================================
 
 void writeMain();
 
@@ -55,6 +79,10 @@ void subq(int lastStackPos);
 
 void remove_newline(char *ptr);
 
+void printLocalVariables(int index);
+
+void subq(int lastStackPos);
+
 //==============================================================================
 // Função Main
 //==============================================================================
@@ -62,9 +90,11 @@ void remove_newline(char *ptr);
 int main(int argc, char **argv)
 {
 
-   if(argc != 3) {
+   if (argc != 3)
+   {
       printf("Quantidade de argumentos inválida\n");
       printf("Modo de uso: bpl.exe <seu_códio.bpl> <codigo_traduzido.s>\n");
+      // return 0;
    }
 
    F_SOURCE = fopen(argv[1], "rt");
@@ -97,7 +127,6 @@ int main(int argc, char **argv)
       fprintf(F_OUTPUT, "\n");
       LINE_COUNT++;
    }
-   
 
    writeMain();
 
@@ -209,10 +238,41 @@ void subq(int lastStackPos)
    fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
 }
 
+void printLocalVariables(int index)
+{
+   if (VARIABLES[index - 1].type == INT)
+   { /* Se for Variável inteira */
+      fprintf(F_OUTPUT, "# vi%d: -%d\n", index, VARIABLES[index - 1].stackPosition);
+   }
+   else if (VARIABLES[index - 1].type == VET_INT)
+   { /* Se for Vetor de inteiros */
+      fprintf(F_OUTPUT, "# va%d: -%d\n", index, VARIABLES[index - 1].stackPosition);
+   }
+}
 
-bool charInStr(const char c, const char *str) {
-   while(str) {
-      if(c == *str) return true;
+void subq(int lastStackPos)
+{
+   while(lastStackPos % 16 != 0)
+      lastStackPos++;
+
+   fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
+}
+
+//
+
+void writeMain()
+{
+   fprintf(F_OUTPUT,
+           ".text\n"
+           "call .f1\n");
+}
+
+bool charInStr(const char c, const char *str)
+{
+   while (*str)
+   {
+      if (c == *str)
+         return true;
       str++;
    }
 
@@ -330,21 +390,22 @@ void assignment()
    
 }
 
-void error(const char *error_type) {
+void error(const char *error_type)
+{
    printf(
-      "ERROR\n"\
-      "Line %d\n"\
-      "Type: %s\n",
-      LINE_COUNT,
-      error_type
-   );
+       "ERROR\n"
+       "Line %d\n"
+       "Type: %s\n",
+       LINE_COUNT,
+       error_type);
 
    fclose(F_SOURCE);
    fclose(F_OUTPUT);
    exit(1);
 }
 
-void registersInit() {
+void registersInit()
+{
    REGISTERS[0].free = true;
    REGISTERS[0].type = CALLER_SAVED;
    strcpy(REGISTERS[0].name32, "eax");
@@ -426,7 +487,8 @@ void registersInit() {
    strcpy(REGISTERS[15].name64, "r15");
 }
 
-Register *add(char type1, int index1, char type2, int index2) {
+Register *add(char type1, int index1, char type2, int index2)
+{
    Register *r = getRegister(NULL, CALLER_SAVED);
 
    if(type1 == 'c')
@@ -442,7 +504,8 @@ Register *add(char type1, int index1, char type2, int index2) {
    return r;
 }
 
-Register *sub(char type1, int index1, char type2, int index2) {
+Register *sub(char type1, int index1, char type2, int index2)
+{
    Register *r = getRegister(NULL, CALLER_SAVED);
 
    if(type1 == 'c')
@@ -458,8 +521,8 @@ Register *sub(char type1, int index1, char type2, int index2) {
    return r;
 }
 
-
-Register *mul(char type1, int index1, char type2, int index2) {
+Register *mul(char type1, int index1, char type2, int index2)
+{
    Register *r = getRegister(NULL, CALLER_SAVED);
 
    if(type1 == 'c')
@@ -475,17 +538,18 @@ Register *mul(char type1, int index1, char type2, int index2) {
    return r;
 }
 
-
-Register *getRegister(char *name64, int type) {
+Register *getRegister(char *name64, int type)
+{
    int i;
 
-   for(i = 0; i < MAX_REGISTER; i++) {
-      if(REGISTERS[i].free && REGISTERS[i].type == type) {
- 
-         if(
-            name64 != NULL &&
-            strcmp(REGISTERS[i].name64, name64) != 0
-         ) continue;
+   for (i = 0; i < MAX_REGISTER; i++)
+   {
+      if (REGISTERS[i].free && REGISTERS[i].type == type)
+      {
+         if (
+             name64 != NULL &&
+             strcmp(REGISTERS[i].name64, name64) != 0)
+            continue;
 
          REGISTERS[i].free = false;
          return &REGISTERS[i];
@@ -495,7 +559,8 @@ Register *getRegister(char *name64, int type) {
    return NULL;
 }
 
-void freeRegister(Register **r) {
+void freeRegister(Register **r)
+{
    (*r)->free = true;
    *r = NULL;
 }
