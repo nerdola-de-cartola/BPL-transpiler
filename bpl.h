@@ -14,6 +14,21 @@
 #define INT 0
 #define VET_INT 1
 
+enum ParamTypes {
+   INT_PARAM,
+   VET_PARAM
+};
+
+typedef struct {
+   ParamTypes type[3];
+   int order;
+} Parameter;
+
+typedef struct {
+   Parameter *parameters;
+   int order;
+} Function;
+
 typedef struct
 {
    char name32[4];
