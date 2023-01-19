@@ -1,6 +1,7 @@
 def
 var vi1
 var vi2
+vet va4 size ci5
 var vi3
 enddef
 

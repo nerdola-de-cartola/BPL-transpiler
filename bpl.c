@@ -1,89 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-
-// Comentario qql
-
-#define MAX_LINE_SIZE 256
-
-#define CALLER_SAVED 0
-#define CALLEE_SAVED 1
-
-#define MAX_REGISTER 16
-#define MAX_VARIABLE 5
-
-#define INT 0
-#define VET_INT 1
-
-typedef struct
-{
-   char name32[4];
-   char name64[4];
-   bool free;
-   int type;
-} Register;
-
-// Mine
-typedef struct
-{
-   int size;
-   int stackPosition;
-   int type;
-} Variable;
-//
+#include "bpl.h"
 
 //==============================================================================
 // Variáveis Globais
 //==============================================================================
 
 Register REGISTERS[MAX_REGISTER];
-
-// Mine
 Variable VARIABLES[MAX_VARIABLE];
-
 FILE *F_SOURCE;
 FILE *F_OUTPUT;
 int LINE_COUNT;
 char BUFFER[MAX_LINE_SIZE];
-
-//==============================================================================
-// Declaração de Funções "Auxiliares"
-//==============================================================================
-
-void writeMain();
-
-bool charInStr(const char c, const char *str);
-
-void assignment();
-
-void error(const char *error_type);
-
-Register *add(char type1, int index1, char type2, int index2);
-
-Register *sub(char type1, int index1, char type2, int index2);
-
-Register *mul(char type1, int index1, char type2, int index2);
-
-Register *divi(char type1, int index1, char type2, int index2);
-
-Register *getRegister(char *name64, int type);
-
-void freeRegister(Register **r);
-
-void registersInit();
-
-void localVariables();
-
-void printLocalVariables(int index);
-
-void subq(int lastStackPos);
-
-void remove_newline(char *ptr);
-
-void printLocalVariables(int index);
-
-void subq(int lastStackPos);
 
 //==============================================================================
 // Função Main
@@ -96,7 +22,7 @@ int main(int argc, char **argv)
    {
       printf("Quantidade de argumentos inválida\n");
       printf("Modo de uso: bpl.exe <seu_códio.bpl> <codigo_traduzido.s>\n");
-      // return 0;
+      return 0;
    }
 
    F_SOURCE = fopen(argv[1], "rt");
@@ -142,7 +68,6 @@ int main(int argc, char **argv)
 // Código das Funções Auxiliares
 //==============================================================================
 
-// Remove o '\n' e o \r do fim da linha
 void remove_newline(char *ptr)
 {
   while (*ptr) {
@@ -151,6 +76,41 @@ void remove_newline(char *ptr)
     else
       ptr++;
   }
+}
+
+bool strInStr(char *string, char*substring) {
+   int i, j;
+
+   for(i = 0, j = 0; string[i] != '\0'; i++) {
+
+      if(string[i] == substring[j])
+         j++;
+
+      if(substring[j] == '\0')
+         return true;
+
+   }
+
+   return false;
+}
+
+void verifyLocalVariables(char c1, char c2, char c3, int index) {
+
+      if (index > 5 || index < 1)
+         error("invalid type in localVariables");
+
+   
+      if(c1 == 'a') // var vi1
+      {
+         if(c2 != 'r' || c3 != 'i')
+            error("invalid type in localVariables");
+      }
+      else if(c1 == 'e') // vet va1
+      {
+         if(c2 != 't' || c3 != 'a' || !strInStr(BUFFER, "size ci"))
+            error("invalid type in localVariables");
+      }
+
 }
 
 void localVariables()
@@ -174,18 +134,7 @@ void localVariables()
           &index,
           &vetSize); // se r = 4 variável (int) se r = 5 variável (int vetor)
 
-      // Condições de erro de "escrita" no arquivo .bpl
-      if ((varORvet != 'a') && (varORvet != 'e'))
-         error("invalid type in localVariables");
-
-      if ((filler1 != 'r') && (filler1 != 't'))
-         error("invalid type in localVariables");
-
-      if ((filler2 != 'a') && (filler2 != 'i'))
-         error("invalid type in localVariables");
-
-      if (index > 5 || index < 1)
-         error("invalid type in localVariables");
+      verifyLocalVariables(varORvet, filler1, filler2, index);
 
       if (r == 4) /* Se for Variável inteira */
       {
@@ -215,6 +164,7 @@ void localVariables()
       lastStackPos = VARIABLES[index - 1].stackPosition;
 
       printLocalVariables(index);
+      LINE_COUNT++;
    }
 
    subq(lastStackPos);
@@ -222,13 +172,16 @@ void localVariables()
 
 void printLocalVariables(int index)
 {
-   if (VARIABLES[index - 1].type == INT)
+
+   Variable *var = getVariable(index);
+
+   if (var->type == INT)
    { /* Se for Variável inteira */
-      fprintf(F_OUTPUT, "# vi%d: -%d\n", index, VARIABLES[index - 1].stackPosition);
+      fprintf(F_OUTPUT, "# vi%d: -%d\n", index, var->stackPosition);
    }
-   else if (VARIABLES[index - 1].type == VET_INT)
+   else if (var->type == VET_INT)
    { /* Se for Vetor de inteiros */
-      fprintf(F_OUTPUT, "# va%d: -%d\n", index, VARIABLES[index - 1].stackPosition);
+      fprintf(F_OUTPUT, "# va%d: -%d\n", index, var->stackPosition);
    }
 }
 
@@ -239,28 +192,6 @@ void subq(int lastStackPos)
 
    fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
 }
-
-void printLocalVariables(int index)
-{
-   if (VARIABLES[index - 1].type == INT)
-   { /* Se for Variável inteira */
-      fprintf(F_OUTPUT, "# vi%d: -%d\n", index, VARIABLES[index - 1].stackPosition);
-   }
-   else if (VARIABLES[index - 1].type == VET_INT)
-   { /* Se for Vetor de inteiros */
-      fprintf(F_OUTPUT, "# va%d: -%d\n", index, VARIABLES[index - 1].stackPosition);
-   }
-}
-
-void subq(int lastStackPos)
-{
-   while(lastStackPos % 16 != 0)
-      lastStackPos++;
-
-   fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
-}
-
-//
 
 void writeMain()
 {
@@ -283,20 +214,27 @@ bool charInStr(const char c, const char *str)
 
 void simpleAssignment(int index_destiny, int index_source, char type_source) {
 
+   Variable *destiny = getVariable(index_destiny);
+
    if(type_source == 'c') 
       fprintf(
          F_OUTPUT,
          "movl $%d, -%d(%%rbp)\n",
          index_source,
-         VARIABLES[index_destiny-1].stackPosition
+         destiny->stackPosition
       );
    else
+   {
+
+      Variable *source = getVariable(index_source);
+
       fprintf(
          F_OUTPUT,
          "movl -%d(%%rbp), -%d(%%rbp)\n",
-         VARIABLES[index_source-1].stackPosition,
-         VARIABLES[index_destiny-1].stackPosition
+         source->stackPosition,
+         destiny->stackPosition
       );
+   }
    
 }
 
@@ -336,6 +274,7 @@ void assignment()
    else
    {
       Register *reg;
+      Variable *destiny = getVariable(index_destiny);
 
       if (
           (type_destiny != 'v') ||
@@ -351,7 +290,7 @@ void assignment()
          if (reg == NULL)
             error("no register available");
 
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, VARIABLES[index_destiny-1].stackPosition);
+         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
          freeRegister(&reg);
          break;
 
@@ -361,7 +300,7 @@ void assignment()
          if (reg == NULL)
             error("no register available");
 
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, VARIABLES[index_destiny-1].stackPosition);
+         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
          freeRegister(&reg);
          break;
 
@@ -371,7 +310,7 @@ void assignment()
          if (reg == NULL)
             error("no register available");
 
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, VARIABLES[index_destiny-1].stackPosition);
+         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
          freeRegister(&reg);
          break;
 
@@ -381,7 +320,7 @@ void assignment()
          if (reg == NULL)
             error("no register available");
 
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, VARIABLES[index_destiny-1].stackPosition);
+         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
          freeRegister(&reg);
          break;
       default:
@@ -496,12 +435,18 @@ Register *add(char type1, int index1, char type2, int index2)
    if(type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
    else 
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", VARIABLES[index1-1].stackPosition, r->name32);
+   {
+      Variable *var1 = getVariable(index1);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
+   }
 
    if(type2 == 'c')
       fprintf(F_OUTPUT, "addl $%d, %%%s\n", index2, r->name32);
    else
-      fprintf(F_OUTPUT, "addl -%d(%%rbp), %%%s\n", VARIABLES[index2-1].stackPosition, r->name32);
+   {
+      Variable *var2 = getVariable(index2);
+      fprintf(F_OUTPUT, "addl -%d(%%rbp), %%%s\n", var2->stackPosition, r->name32);
+   }
 
    return r;
 }
@@ -509,16 +454,22 @@ Register *add(char type1, int index1, char type2, int index2)
 Register *sub(char type1, int index1, char type2, int index2)
 {
    Register *r = getRegister(NULL, CALLER_SAVED);
-
+   
    if(type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
    else 
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", VARIABLES[index1-1].stackPosition, r->name32);
+   {
+      Variable *var1 = getVariable(index1);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
+   }
 
    if(type2 == 'c')
       fprintf(F_OUTPUT, "subl $%d, %%%s\n", index2, r->name32);
    else
-      fprintf(F_OUTPUT, "subl -%d(%%rbp), %%%s\n", VARIABLES[index2-1].stackPosition, r->name32);
+   {
+      Variable *var2 = getVariable(index2);
+      fprintf(F_OUTPUT, "subl -%d(%%rbp), %%%s\n", var2->stackPosition, r->name32);
+   }
 
    return r;
 }
@@ -527,15 +478,22 @@ Register *mul(char type1, int index1, char type2, int index2)
 {
    Register *r = getRegister(NULL, CALLER_SAVED);
 
+
    if(type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
    else 
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", VARIABLES[index1-1].stackPosition, r->name32);
+   {
+      Variable *var1 = getVariable(index1);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
+   }
 
    if(type2 == 'c')
       fprintf(F_OUTPUT, "imull $%d, %%%s\n", index2, r->name32);
    else
-      fprintf(F_OUTPUT, "imull -%d(%%rbp), %%%s\n", VARIABLES[index2-1].stackPosition, r->name32);
+   {
+      Variable *var2 = getVariable(index2);
+      fprintf(F_OUTPUT, "imull -%d(%%rbp), %%%s\n", var2->stackPosition, r->name32);
+   }
 
    return r;
 }
@@ -572,17 +530,23 @@ Register *divi(char type1, int index1, char type2, int index2)
    Register *rax = getRegister("rax", CALLER_SAVED);
    Register *r_tmp = getRegister(NULL, CALLER_SAVED);
 
+
    if(type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, rax->name32);
    else
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", VARIABLES[index1-1].stackPosition, rax->name32);
+   {
+      Variable *var1 = getVariable(index1);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, rax->name32);
+   }
 
 
    if(type2 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index2, r_tmp->name32);
    else
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", VARIABLES[index2-1].stackPosition, r_tmp->name32);
-
+   {
+      Variable *var2 = getVariable(index2);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var2->stackPosition, r_tmp->name32);
+   }
 
    fprintf(F_OUTPUT, "cltd\n");
    fprintf(F_OUTPUT, "idiv %%%s\n", r_tmp->name32);
@@ -590,4 +554,11 @@ Register *divi(char type1, int index1, char type2, int index2)
    freeRegister(&r_tmp);
 
    return rax;
+}
+
+Variable *getVariable(int index) {
+   if(index < 1 || index > 5)
+      error("Invalid index of variable");
+
+   return &VARIABLES[index -1];
 }
