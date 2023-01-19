@@ -1,22 +1,29 @@
-movl ci9, vi1
+# vi1: -4
+# vi2: -8
+# vi3: -12
+subq $16, %rsp
 
-movl vi2, %eax
-addl ci2, %eax
-movl %eax, vi1
 
-movl vi2, %eax
-subl ci4, %eax
-movl %eax, vi1
+movl $9, -4(%rbp)
 
-movl vi2, %eax
-imull ci8, %eax
-movl %eax, vi1
+movl $2, %eax
+addl -8(%rbp), %eax
+movl %eax, -4(%rbp)
 
-movl vi2, %eax
-movl ci9, %ecx
+movl $4, %eax
+subl -8(%rbp), %eax
+movl %eax, -4(%rbp)
+
+movl $8, %eax
+imull -8(%rbp), %eax
+movl %eax, -12(%rbp)
+
+movl -12(%rbp), %eax
+movl $9, %ecx
 cltd
 idiv %ecx
-movl %eax, vi1
+movl %eax, -4(%rbp)
 
 .text
 call .f1
+   
