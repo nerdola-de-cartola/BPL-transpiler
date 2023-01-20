@@ -20,12 +20,13 @@ enum ParamTypes {
 };
 
 typedef struct {
-   ParamTypes type[3];
+   ParamTypes type;
    int order;
 } Parameter;
 
 typedef struct {
-   Parameter *parameters;
+   Parameter parameters[3];
+   Variable variables[5];
    int order;
 } Function;
 
