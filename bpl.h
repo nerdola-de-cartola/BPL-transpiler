@@ -19,13 +19,16 @@ enum ParamTypes {
    VET_PARAM
 };
 
+// Save parameters on callee saved registers
 typedef struct {
    ParamTypes type;
-   int order;
+   Register *reg;
 } Parameter;
 
 typedef struct {
+   int parameterCount;
    Parameter parameters[3];
+   int variableCount;
    Variable variables[5];
    int order;
 } Function;

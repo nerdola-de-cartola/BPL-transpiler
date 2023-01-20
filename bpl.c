@@ -51,6 +51,8 @@ int main(int argc, char **argv)
          localVariables();
       else if (charInStr('=', BUFFER))
          assignment();
+      else if (strInStr('function', BUFFER))
+         functionDefinition();
 
       fprintf(F_OUTPUT, "\n");
       LINE_COUNT++;
@@ -113,7 +115,31 @@ void verifyLocalVariables(char c1, char c2, char c3, int index) {
 
 }
 
-void localVariables()
+void functionDefinition()
+{
+   // Printa label, pushq
+   // movq %rsp, %rbp
+   printFunctionHeader();
+
+   // call paramDefinition
+   // call localVariables
+   // print subq instruction
+
+   while(true) {
+      // demais funcionalidades
+      fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
+      if(strInStr(BUFFER, 'end')) {
+         break;
+      }
+   }
+
+   // leave ret e restaurar os callee verdes
+   // quando necessário
+   printFunctionEnd();
+   LINE_COUNT++;
+}
+
+int localVariables()
 {
 
    int r;
@@ -167,7 +193,7 @@ void localVariables()
       LINE_COUNT++;
    }
 
-   subq(lastStackPos);
+   return lastStackPos;
 }
 
 void printLocalVariables(int index)
