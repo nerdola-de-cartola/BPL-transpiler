@@ -14,6 +14,25 @@
 #define INT 0
 #define VET_INT 1
 
+enum ParamTypes {
+   INT_PARAM,
+   VET_PARAM
+};
+
+// Save parameters on callee saved registers
+typedef struct {
+   ParamTypes type;
+   Register *reg;
+} Parameter;
+
+typedef struct {
+   int parameterCount;
+   Parameter parameters[3];
+   int variableCount;
+   Variable variables[5];
+   int order;
+} Function;
+
 typedef struct
 {
    char name32[4];
