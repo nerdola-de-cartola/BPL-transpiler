@@ -4,51 +4,51 @@
 #include <string.h>
 
 #define MAX_LINE_SIZE 256
-
-#define CALLER_SAVED 0
-#define CALLEE_SAVED 1
-
 #define MAX_REGISTER 16
+#define MIN_VARIABLE 1
 #define MAX_VARIABLE 5
+#define MIN_PARAMETERS 1
+#define MAX_PARAMETERS 3
+#define MAX_FUNCTIONS 1000
 
-#define INT 0
-#define VET_INT 1
+typedef enum {
+   CALLER_SAVED,
+   CALLEE_SAVED
+} RegisterType;
 
-enum ParamTypes {
-   INT_PARAM,
-   VET_PARAM
-};
-
-// Save parameters on callee saved registers
-typedef struct {
-   ParamTypes type;
-   Register *reg;
-} Parameter;
-
-typedef struct {
-   int parameterCount;
-   Parameter parameters[3];
-   int variableCount;
-   Variable variables[5];
-   int order;
-} Function;
+typedef enum {
+   INT,
+   VET
+} VarTypes;
 
 typedef struct
 {
    char name32[4];
    char name64[4];
    bool free;
-   int type;
+   RegisterType type;
 } Register;
+
+// Save parameters on callee saved registers
+typedef struct {
+   VarTypes type;
+   Register *reg;
+} Parameter;
 
 typedef struct
 {
    int size;
    int stackPosition;
-   int type;
+   VarTypes type;
 } Variable;
 
-void writeMain();
+typedef struct {
+   int parameterCount;
+   Parameter parameters[MAX_PARAMETERS];
+   int variableCount;
+   Variable variables[MAX_VARIABLE];
+   int order;
+} Function;
 
 bool charInStr(const char c, const char *str);
 
@@ -64,13 +64,13 @@ Register *mul(char type1, int index1, char type2, int index2);
 
 Register *divi(char type1, int index1, char type2, int index2);
 
-Register *getRegister(char *name64, int type);
+Register *getRegister(char *name64, RegisterType type);
 
 void freeRegister(Register **r);
 
 void registersInit();
 
-void localVariables();
+int localVariables();
 
 void printLocalVariables(int index);
 
@@ -86,4 +86,8 @@ bool strInStr(char *string, char*substring);
 
 void verifyIfStatement(char c1, char c2, int index);
 
+void verifyLocalVariables(char c1, char c2, char c3, int index);
+
 char *readNewLine();
+
+void functionDefinition();

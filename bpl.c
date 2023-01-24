@@ -6,9 +6,10 @@
 
 Register REGISTERS[MAX_REGISTER];
 Variable VARIABLES[MAX_VARIABLE];
+Function FUNCTIONS[MAX_FUNCTIONS];
 FILE *F_SOURCE;
 FILE *F_OUTPUT;
-int LINE_COUNT, IF_INDEX;
+int LINE_COUNT, IF_INDEX, CURRENT_FUNCTION;
 char BUFFER[MAX_LINE_SIZE];
 
 //==============================================================================
@@ -46,17 +47,10 @@ int main(int argc, char **argv)
    while (readNewLine() != NULL)
    {
 
-      if (strcmp(BUFFER, "def") == 0)
-         localVariables();
-      else if (charInStr('=', BUFFER))
-         assignment();
-      else if (strInStr(BUFFER, "if"))
-         ifStatement();
+      if(strInStr(BUFFER, "function"))
+         functionDefinition();
 
-      fprintf(F_OUTPUT, "\n");
    }
-
-   writeMain();
 
    fclose(F_SOURCE);
    fclose(F_OUTPUT);
@@ -65,7 +59,7 @@ int main(int argc, char **argv)
 }
 
 //==============================================================================
-// Código das Funções Auxiliares
+// Funções Auxiliares
 //==============================================================================
 
 void remove_newline(char *ptr)
@@ -96,7 +90,7 @@ bool strInStr(char *string, char*substring) {
 
 void verifyLocalVariables(char c1, char c2, char c3, int index) {
 
-      if (index > 5 || index < 1)
+      if (index > MAX_VARIABLE || index < MIN_VARIABLE)
          error("invalid type in localVariables");
 
    
@@ -115,26 +109,39 @@ void verifyLocalVariables(char c1, char c2, char c3, int index) {
 
 void functionDefinition()
 {
-   // Printa label, pushq
-   // movq %rsp, %rbp
+
+   // Lê do buffer
+
+   // Verifica definição
+
+   // Atualiza o array FUNCTIONS e a variável global CURRENT_FUNCTION 
+
+   // globl, label, pushq, movq
    printFunctionHeader();
 
-   // call paramDefinition
    // call localVariables
    // print subq instruction
 
    while(true) {
-      // demais funcionalidades
-      fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
-      if(strInStr(BUFFER, 'end')) {
+
+      readNewLine();
+
+      if (strcmp(BUFFER, "def") == 0)
+         localVariables();
+      else if (charInStr('=', BUFFER))
+         assignment();
+      else if (strInStr(BUFFER, "if"))
+         ifStatement();
+      else if(strcmp(BUFFER, "end"))
          break;
-      }
+      else 
+         error("Invalid instruction");
+
+      fprintf(F_OUTPUT, "\n");
    }
 
-   // leave ret e restaurar os callee verdes
-   // quando necessário
+   // return, leave ret e restaurar os registradores callee saved
    printFunctionEnd();
-   LINE_COUNT++;
 }
 
 int localVariables()
@@ -177,7 +184,7 @@ int localVariables()
       else if (r == 5) /* Se for Vetor de inteiros */
       {
          VARIABLES[index - 1].size = 4 * vetSize;
-         VARIABLES[index - 1].type = VET_INT;
+         VARIABLES[index - 1].type = VET;
 
          while (lastStackPos % 4 != 0)
             lastStackPos++;
@@ -205,7 +212,7 @@ void printLocalVariables(int index)
    { /* Se for Variável inteira */
       fprintf(F_OUTPUT, "# vi%d: -%d\n", index, var->stackPosition);
    }
-   else if (var->type == VET_INT)
+   else if (var->type == VET)
    { /* Se for Vetor de inteiros */
       fprintf(F_OUTPUT, "# va%d: -%d\n", index, var->stackPosition);
    }
@@ -217,13 +224,6 @@ void subq(int lastStackPos)
       lastStackPos++;
 
    fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
-}
-
-void writeMain()
-{
-   fprintf(F_OUTPUT,
-           ".text\n"
-           "call .f1\n");
 }
 
 bool charInStr(const char c, const char *str)
@@ -524,7 +524,7 @@ Register *mul(char type1, int index1, char type2, int index2)
    return r;
 }
 
-Register *getRegister(char *name64, int type)
+Register *getRegister(char *name64, RegisterType type)
 {
    int i;
 
@@ -583,7 +583,7 @@ Register *divi(char type1, int index1, char type2, int index2)
 }
 
 Variable *getVariable(int index) {
-   if(index < 1 || index > 5)
+   if(index < MIN_VARIABLE || index > MAX_VARIABLE)
       error("Invalid index of variable");
 
    return &VARIABLES[index -1];
@@ -643,13 +643,13 @@ void verifyIfStatement(char c1, char c2, int index) {
 
    
    if(c1 == 'v') { //if vi1
-      if(index < 1 || index > 5) error("Invalid type in if statement");
+      if(index < MIN_VARIABLE || index > MAX_VARIABLE) error("Invalid type in if statement");
    
    } else if (c1 == 'c') { //if ci1
       if(index < 0) error("Invalid type in if statement");
 
    } else if(c1 == 'p') { //if pi1
-      if(index < 1 || index > 3) error("Invalid type in if statement");
+      if(index < MIN_PARAMETERS || index > MAX_PARAMETERS) error("Invalid type in if statement");
 
    } else {
       error("Invalid type in if statement");
