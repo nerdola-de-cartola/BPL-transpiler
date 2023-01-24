@@ -1,5 +1,5 @@
 # BPL-transpiler
-
+Transpiler de BPL (Bruno Programming Language) para assembly de intel x86
 
 # Compilar
 ```clang bpl.c -o bpl.exe```\
