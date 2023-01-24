@@ -60,3 +60,11 @@ void subq(int lastStackPos);
 void remove_newline(char *ptr);
 
 Variable *getVariable(int index);
+
+void ifStatement();
+
+bool strInStr(char *string, char*substring);
+
+void verifyIfStatement(char c1, char c2, int index);
+
+char *readNewLine();

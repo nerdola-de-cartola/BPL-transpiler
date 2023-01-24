@@ -1,29 +1,23 @@
 # vi1: -4
-# vi2: -8
-# va4: -28
-# vi3: -32
-subq $32, %rsp
+# va2: -44
+subq $48, %rsp
 
+movl $3, -4(%rbp)
 
-movl $9, -4(%rbp)
+cmpl $0, -4(%rbp)
+je .if0
+movl $0, -4(%rbp)
+.if0:
 
-movl $2, %eax
-addl -8(%rbp), %eax
-movl %eax, -4(%rbp)
+cmpl $0, -4(%rbp)
+je .if1
+movl $11, -4(%rbp)
+.if1:
 
-movl $4, %eax
-subl -8(%rbp), %eax
-movl %eax, -4(%rbp)
-
-movl $8, %eax
-imull -8(%rbp), %eax
-movl %eax, -32(%rbp)
-
-movl -32(%rbp), %eax
-movl $9, %ecx
-cltd
-idiv %ecx
-movl %eax, -4(%rbp)
+cmpl $0, -4(%rbp)
+je .if2
+movl $22, -4(%rbp)
+.if2:
 
 .text
 call .f1
