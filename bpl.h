@@ -33,6 +33,7 @@ typedef struct
 typedef struct {
    VarTypes type;
    Register *reg;
+   int stackPosition;
 } Parameter;
 
 typedef struct
@@ -47,6 +48,7 @@ typedef struct {
    Parameter parameters[MAX_PARAMETERS];
    int variableCount;
    Variable variables[MAX_VARIABLE];
+   int lastStackPos;
    int order;
 } Function;
 
@@ -91,3 +93,5 @@ void verifyLocalVariables(char c1, char c2, char c3, int index);
 char *readNewLine();
 
 void functionDefinition();
+
+void callFunction();

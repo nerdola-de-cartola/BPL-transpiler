@@ -128,6 +128,8 @@ void functionDefinition()
 
       if (strcmp(BUFFER, "def") == 0)
          localVariables();
+      else if(strInStr(BUFFER, "call"))
+         callFunction();
       else if (charInStr('=', BUFFER))
          assignment();
       else if (strInStr(BUFFER, "if"))
@@ -140,8 +142,24 @@ void functionDefinition()
       fprintf(F_OUTPUT, "\n");
    }
 
-   // return, leave ret e restaurar os registradores callee saved
+   // return, leave ret
    printFunctionEnd();
+}
+
+void callFunction() {
+   // Lê do BUFFER
+
+   // Verifica a função e os parâmetros
+
+   // Se houver passagem de parâmetros, salva os parâmetros na pilha
+
+   // Passa os parâmetros necessários
+
+   // Call 
+
+   // Recupera os parâmetros salvos na pilha
+
+   // Faz a atribuição se for necessário
 }
 
 int localVariables()
