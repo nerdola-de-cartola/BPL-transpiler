@@ -60,3 +60,19 @@ void subq(int lastStackPos);
 void remove_newline(char *ptr);
 
 Variable *getVariable(int index);
+
+void ifStatement();
+
+bool strInStr(char *string, char*substring);
+
+void verifyIfStatement(char c1, char c2, int index);
+
+char *readNewLine();
+
+void verifyArrayAccess(int r, char c1, int id1, int index, int c2, char c3, int id2);
+
+void arrayAccess();
+
+void arrayAccessGet(Register *r, char type, int index);
+
+void arrayAccessSet(Register *r, char type, int index);
