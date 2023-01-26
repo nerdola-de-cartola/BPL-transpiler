@@ -52,7 +52,7 @@ int main(int argc, char **argv)
          localVariables();
       else if (charInStr('=', BUFFER))
          assignment();
-      else if (strInStr('function', BUFFER))
+      else if (strInStr("function", BUFFER))
          functionDefinition();
 
       fprintf(F_OUTPUT, "\n");
@@ -116,6 +116,35 @@ void verifyLocalVariables(char c1, char c2, char c3, int index) {
 
 }
 
+void verifyParams(int order, char type1, char type2, char type3)
+{
+   if(order < 1) error("Invalid function index");
+
+   if(type1 != 'i' && type1 != 'a') error("Invalid param type");
+   if(type2 != 'i' && type2 != 'a') error("Invalid param type");
+   if(type3 != 'i' && type3 != 'a') error("Invalid param type");
+}
+
+int paramDefinition(Function *f, int stackSize) 
+{
+
+   int i;
+   
+   for(i = 0; i < f->order; i++)
+   {
+      if(f->parameters[i].type == INT_PARAM)
+         while(stackSize % 4 != 0) stackSize++;
+
+      else if(f->parameters[i].type == VET_PARAM)
+         while(stackSize % 8 != 0) stackSize++;
+
+      f->parameters[i].stackPosition = stackSize;
+   }
+
+   return stackSize;
+}
+
+
 void functionDefinition()
 {
    int order;
@@ -131,30 +160,43 @@ void functionDefinition()
    Function function = {0};
    function.order = order;
    function.parameterCount = paramLenght - 1;
-   if(paramLenght > 1)
-      function.parameter[0].type = type1;
-   if(paramLenght > 2)
-      function.parameter[1].type = type2;
-   if(paramLenght > 3)
-      function.parameter[2].type = type3;
-   FUNCTIONS[order-1] = function;
-   int paramsSize = paramDefinition();
-   int variablesSize = localVariables();
-   
-   printFunctionHeader(function);
-   fprintf(F_OUTPUT, "subq $%d, %%rsp", paramsSize + variablesSize);
+
+   verifyParams(order, type1, type2, type3);
+
+   if(function.parameterCount >= 1)
+   {
+      function.parameters[0].type = type1;
+      function.parameters[0].reg = getRegister("rdi", CALLER_SAVED);
+   }
+   else if(function.parameterCount >= 2)
+   {
+      function.parameters[1].type = type2;
+      function.parameters[1].reg = getRegister("rsi", CALLER_SAVED);
+   }
+   else if(function.parameterCount >= 3)
+   {
+      function.parameters[2].type = type3;
+      function.parameters[1].reg = getRegister("rdx", CALLER_SAVED);
+   }
+
+   printFunctionHeader(&function);
+
+   int stackSize = localVariables();
+   stackSize = paramDefinition(&function, stackSize);
+   subq(stackSize);
 
    while(true) {
-      // demais funcionalidades
+      
       fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
-      if(strInStr(BUFFER, 'end')) {
+      if(strInStr(BUFFER, "end")) {
          break;
       }
    }
 
-   // leave ret e restaurar os registradores verdes
+   // leave ret
    printFunctionEnd();
-   LINE_COUNT++;
+
+   FUNCTIONS[order-1] = function;
 }
 
 int localVariables()
@@ -607,14 +649,13 @@ Variable *getVariable(int index) {
    return &VARIABLES[index -1];
 }
 
-void printFunctionHeader(Function function){
-   fprintf(F_OUTPUT, ".globl f%s\n", function.order);
-   fprintf(F_OUTPUT, "f%s:", function.order);
-   fprintf(F_OUTPUT, "pushq %%rbp, %%rsp\n");
+void printFunctionHeader(Function *function){
+   fprintf(F_OUTPUT, ".globl f%d\n", function->order);
+   fprintf(F_OUTPUT, "f%d:", function->order);
+   fprintf(F_OUTPUT, "pushq %%rbp\n");
    fprintf(F_OUTPUT, "movq %%rsp, %%rbp\n");
 }
 
-void printFunctionEnd(Function function){
-   // restore callee saved registers
+void printFunctionEnd(){
    fprintf(F_OUTPUT, "leave\nret\n");
 }
