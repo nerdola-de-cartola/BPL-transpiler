@@ -46,7 +46,7 @@ typedef struct {
    int order;
 } Function;
 
-void writeMain();
+void beginFile();
 
 bool charInStr(const char c, const char *str);
 

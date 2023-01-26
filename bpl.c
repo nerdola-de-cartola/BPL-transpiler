@@ -44,20 +44,17 @@ int main(int argc, char **argv)
    IF_INDEX = 0;
    registersInit();
 
+   beginFile();
+
    while (readNewLine() != NULL)
    {
 
-      if (strcmp(BUFFER, "def") == 0)
-         localVariables();
-      else if (charInStr('=', BUFFER))
-         assignment();
-      else if (strInStr("function", BUFFER))
+      if (strInStr("function", BUFFER))
          functionDefinition();
 
       fprintf(F_OUTPUT, "\n");
    }
 
-   writeMain();
 
    fclose(F_SOURCE);
    fclose(F_OUTPUT);
@@ -186,10 +183,20 @@ void functionDefinition()
 
    while(true) {
       
-      fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
-      if(strInStr(BUFFER, "end")) {
+      readNewLine();
+      
+      if(strInStr(BUFFER, "end"))
          break;
-      }
+      else if (strcmp(BUFFER, "def") == 0)
+         localVariables();
+      else if (charInStr('=', BUFFER))
+         assignment();
+      else if (strInStr(BUFFER, "index"))
+         arrayAccess();
+      else if (strInStr(BUFFER, "if"))
+         ifStatement();
+      else
+         error("Invalid instruction in function definition");
    }
 
    // leave ret
@@ -281,11 +288,9 @@ void subq(int lastStackPos)
    fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
 }
 
-void writeMain()
+void beginFile()
 {
-   fprintf(F_OUTPUT,
-           ".text\n"
-           "call .f1\n");
+   fprintf(F_OUTPUT, ".text\n");
 }
 
 bool charInStr(const char c, const char *str)
