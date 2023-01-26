@@ -10,13 +10,14 @@
 
 #define MAX_REGISTER 16
 #define MAX_VARIABLE 5
+#define MAX_FUNCTION 100
 
 #define INT 0
 #define VET_INT 1
 
-enum ParamTypes {
-   INT_PARAM,
-   VET_PARAM
+enum ParamTypes: char {
+   INT_PARAM = 'i',
+   VET_PARAM = 'a'
 };
 
 // Save parameters on callee saved registers

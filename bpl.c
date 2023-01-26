@@ -6,6 +6,7 @@
 
 Register REGISTERS[MAX_REGISTER];
 Variable VARIABLES[MAX_VARIABLE];
+Function FUNCTIONS[MAX_FUNCTION];
 FILE *F_SOURCE;
 FILE *F_OUTPUT;
 int LINE_COUNT;
@@ -117,13 +118,31 @@ void verifyLocalVariables(char c1, char c2, char c3, int index) {
 
 void functionDefinition()
 {
-   // Printa label, pushq
-   // movq %rsp, %rbp
-   printFunctionHeader();
+   int order;
+   char type1, type2, type3;
+   
+   int paramLenght = sscanf(BUFFER, "function f%d p%c1 p%c2 p%c3", 
+      &order,
+      &type1,
+      &type2,
+      &type3
+   );
 
-   // call paramDefinition
-   // call localVariables
-   // print subq instruction
+   Function function = {0};
+   function.order = order;
+   function.parameterCount = paramLenght - 1;
+   if(paramLenght > 1)
+      function.parameter[0].type = type1;
+   if(paramLenght > 2)
+      function.parameter[1].type = type2;
+   if(paramLenght > 3)
+      function.parameter[2].type = type3;
+   FUNCTIONS[order-1] = function;
+   int paramsSize = paramDefinition();
+   int variablesSize = localVariables();
+   
+   printFunctionHeader(function);
+   fprintf(F_OUTPUT, "subq $%d, %%rsp", paramsSize + variablesSize);
 
    while(true) {
       // demais funcionalidades
@@ -133,8 +152,7 @@ void functionDefinition()
       }
    }
 
-   // leave ret e restaurar os callee verdes
-   // quando necessário
+   // leave ret e restaurar os registradores verdes
    printFunctionEnd();
    LINE_COUNT++;
 }
@@ -587,4 +605,16 @@ Variable *getVariable(int index) {
       error("Invalid index of variable");
 
    return &VARIABLES[index -1];
+}
+
+void printFunctionHeader(Function function){
+   fprintf(F_OUTPUT, ".globl f%s\n", function.order);
+   fprintf(F_OUTPUT, "f%s:", function.order);
+   fprintf(F_OUTPUT, "pushq %%rbp, %%rsp\n");
+   fprintf(F_OUTPUT, "movq %%rsp, %%rbp\n");
+}
+
+void printFunctionEnd(Function function){
+   // restore callee saved registers
+   fprintf(F_OUTPUT, "leave\nret\n");
 }
