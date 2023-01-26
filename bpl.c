@@ -117,7 +117,7 @@ void verifyLocalVariables(char c1, char c2, char c3, int index)
 
 void verifyParams(int order, char type1, char type2, char type3)
 {
-   if(order < 1) error("Invalid function index");
+   if(order < 1 || order > MAX_FUNCTION) error("Invalid function index");
 
    if(type1 != 'i' && type1 != 'a') error("Invalid param type");
    if(type2 != 'i' && type2 != 'a') error("Invalid param type");
@@ -131,10 +131,10 @@ int paramDefinition(Function *f, int stackSize)
    
    for(i = 0; i < f->order; i++)
    {
-      if(f->parameters[i].type == INT_PARAM)
+      if(f->parameters[i].type == INT)
          while(stackSize % 4 != 0) stackSize++;
 
-      else if(f->parameters[i].type == VET_PARAM)
+      else if(f->parameters[i].type == VET)
          while(stackSize % 8 != 0) stackSize++;
 
       f->parameters[i].stackPosition = stackSize;
@@ -164,18 +164,18 @@ void functionDefinition()
 
    if(function.parameterCount >= 1)
    {
-      function.parameters[0].type = type1;
+      function.parameters[0].type = type1 == 'i' ? INT : VET;
       function.parameters[0].reg = getRegister("rdi", CALLER_SAVED);
    }
    else if(function.parameterCount >= 2)
    {
-      function.parameters[1].type = type2;
+      function.parameters[1].type = type2 == 'i' ? INT : VET;
       function.parameters[1].reg = getRegister("rsi", CALLER_SAVED);
    }
    else if(function.parameterCount >= 3)
    {
-      function.parameters[2].type = type3;
-      function.parameters[1].reg = getRegister("rdx", CALLER_SAVED);
+      function.parameters[2].type = type3 == 'i' ? INT : VET;
+      function.parameters[2].reg = getRegister("rdx", CALLER_SAVED);
    }
 
    printFunctionHeader(&function);
@@ -238,7 +238,7 @@ int localVariables()
       else if (r == 5) /* Se for Vetor de inteiros */
       {
          VARIABLES[index - 1].size = 4 * vetSize;
-         VARIABLES[index - 1].type = VET_INT;
+         VARIABLES[index - 1].type = VET;
 
          while (lastStackPos % 4 != 0)
             lastStackPos++;
@@ -267,7 +267,7 @@ void printLocalVariables(int index)
    { /* Se for Variável inteira */
       fprintf(F_OUTPUT, "# vi%d: -%d\n", index, var->stackPosition);
    }
-   else if (var->type == VET_INT)
+   else if (var->type == VET)
    { /* Se for Vetor de inteiros */
       fprintf(F_OUTPUT, "# va%d: -%d\n", index, var->stackPosition);
    }

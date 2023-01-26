@@ -13,23 +13,20 @@
 #define MAX_FUNCTION 100
 
 #define INT 0
-#define VET_INT 1
+#define VET 1
 
-typedef enum ParamTypes: char {
-   INT_PARAM = 'i',
-   VET_PARAM = 'a'
-} ParamTypes;
+typedef int Type;
 
 typedef struct
 {
    char name32[4];
    char name64[4];
    bool free;
-   int type;
+   Type type;
 } Register;
 
 typedef struct {
-   ParamTypes type;
+   Type type;
    Register *reg;
    int stackPosition;
 } Parameter;
