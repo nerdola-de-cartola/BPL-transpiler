@@ -42,7 +42,6 @@ typedef struct {
    int parameterCount;
    Parameter parameters[3];
    int variableCount;
-   Variable variables[5];
    int order;
 } Function;
 
@@ -101,3 +100,5 @@ void functionDefinition();
 void printFunctionHeader(Function *function);
 
 void printFunctionEnd();
+
+void verifyParams(int order, char type1, char type2, char type3, int paramQtd);

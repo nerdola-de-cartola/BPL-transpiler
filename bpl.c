@@ -49,7 +49,7 @@ int main(int argc, char **argv)
    while (readNewLine() != NULL)
    {
 
-      if (strInStr("function", BUFFER))
+      if (strInStr(BUFFER, "function"))
          functionDefinition();
 
       fprintf(F_OUTPUT, "\n");
@@ -70,7 +70,7 @@ void remove_newline(char *ptr)
 {
    while (*ptr)
    {
-      if (*ptr == '\n' || *ptr == '\r')
+      if (*ptr == '\n' || *ptr == '\r' || *ptr == '#')
          *ptr = 0;
       else
          ptr++;
@@ -112,13 +112,27 @@ void verifyLocalVariables(char c1, char c2, char c3, int index)
    }
 }
 
-void verifyParams(int order, char type1, char type2, char type3)
+void verifyParams(int order, char type1, char type2, char type3, int paramQtd)
 {
    if(order < 1 || order > MAX_FUNCTION) error("Invalid function index");
 
-   if(type1 != 'i' && type1 != 'a') error("Invalid param type");
-   if(type2 != 'i' && type2 != 'a') error("Invalid param type");
-   if(type3 != 'i' && type3 != 'a') error("Invalid param type");
+   if(paramQtd >=1)
+      if(type1 != 'i' && type1 != 'a') error("Invalid param type");
+
+   if(paramQtd >= 2)
+      if(type2 != 'i' && type2 != 'a') error("Invalid param type");
+
+   if(paramQtd == 3) 
+      if(type3 != 'i' && type3 != 'a') error("Invalid param type");
+}
+
+void printParam(Parameter *p, int index) {
+
+   if(p->type == INT)
+      fprintf(F_OUTPUT, "# pi%d -> %%%s | -%d(%%rbp)\n", index, p->reg->name32, p->stackPosition);
+   else 
+      fprintf(F_OUTPUT, "# pa%d -> %%%s | -%d(%%rbp)\n", index, p->reg->name64, p->stackPosition);
+
 }
 
 int paramDefinition(Function *f, int stackSize) 
@@ -126,20 +140,38 @@ int paramDefinition(Function *f, int stackSize)
 
    int i;
    
-   for(i = 0; i < f->order; i++)
+   for(i = 0; i < f->parameterCount; i++)
    {
-      if(f->parameters[i].type == INT)
+      if(f->parameters[i].type == INT) {
+         stackSize += 4;
          while(stackSize % 4 != 0) stackSize++;
 
-      else if(f->parameters[i].type == VET)
+      } else if(f->parameters[i].type == VET) {
+         stackSize += 8;
          while(stackSize % 8 != 0) stackSize++;
 
+      }
+
       f->parameters[i].stackPosition = stackSize;
+
+      printParam(&f->parameters[i], i+1);
    }
 
    return stackSize;
 }
 
+void clearVARIABLES() {
+   int i;
+   Variable *var;
+
+   for(i = 1; i <= MAX_VARIABLE; i++) {
+      var = getVariable(i);
+
+      var->size = 0;
+      var->stackPosition = 0;
+      var->type = -1;
+   }
+}
 
 void functionDefinition()
 {
@@ -157,25 +189,32 @@ void functionDefinition()
    function.order = order;
    function.parameterCount = paramLenght - 1;
 
-   verifyParams(order, type1, type2, type3);
+   verifyParams(order, type1, type2, type3, function.parameterCount);
 
    if(function.parameterCount >= 1)
    {
       function.parameters[0].type = type1 == 'i' ? INT : VET;
       function.parameters[0].reg = getRegister("rdi", CALLER_SAVED);
    }
-   else if(function.parameterCount >= 2)
+   if(function.parameterCount >= 2)
    {
       function.parameters[1].type = type2 == 'i' ? INT : VET;
       function.parameters[1].reg = getRegister("rsi", CALLER_SAVED);
    }
-   else if(function.parameterCount >= 3)
+   if(function.parameterCount >= 3)
    {
       function.parameters[2].type = type3 == 'i' ? INT : VET;
       function.parameters[2].reg = getRegister("rdx", CALLER_SAVED);
    }
 
    printFunctionHeader(&function);
+
+   clearVARIABLES();
+
+   readNewLine();
+
+   if(strcmp(BUFFER, "def") != 0)
+      error("Missing definition of local variables");
 
    int stackSize = localVariables();
    stackSize = paramDefinition(&function, stackSize);
@@ -185,10 +224,8 @@ void functionDefinition()
       
       readNewLine();
       
-      if(strInStr(BUFFER, "end"))
+      if(strcmp(BUFFER, "end") == 0)
          break;
-      else if (strcmp(BUFFER, "def") == 0)
-         localVariables();
       else if (charInStr('=', BUFFER))
          assignment();
       else if (strInStr(BUFFER, "index"))
@@ -197,6 +234,8 @@ void functionDefinition()
          ifStatement();
       else
          error("Invalid instruction in function definition");
+
+      fprintf(F_OUTPUT, "\n");
    }
 
    // leave ret
@@ -285,7 +324,7 @@ void subq(int lastStackPos)
    while (lastStackPos % 16 != 0)
       lastStackPos++;
 
-   fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
+   fprintf(F_OUTPUT, "subq $%d, %%rsp\n\n", lastStackPos);
 }
 
 void beginFile()
@@ -692,10 +731,17 @@ void ifStatement()
 
 char *readNewLine()
 {
-   char *ptr = fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
+   char *ptr = NULL;
 
-   LINE_COUNT++;
-   remove_newline(BUFFER);
+   while(true)
+   {
+      ptr = fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
+
+      LINE_COUNT++;
+      remove_newline(BUFFER);
+
+      if(BUFFER[0] != '\0' || ptr == NULL) break;
+   }
 
    return ptr;
 }
@@ -874,9 +920,9 @@ void arrayAccessSet(Register *r, char type, int index)
 
 void printFunctionHeader(Function *function){
    fprintf(F_OUTPUT, ".globl f%d\n", function->order);
-   fprintf(F_OUTPUT, "f%d:", function->order);
+   fprintf(F_OUTPUT, "f%d:\n\n", function->order);
    fprintf(F_OUTPUT, "pushq %%rbp\n");
-   fprintf(F_OUTPUT, "movq %%rsp, %%rbp\n");
+   fprintf(F_OUTPUT, "movq %%rsp, %%rbp\n\n");
 }
 
 void printFunctionEnd(){

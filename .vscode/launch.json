@@ -11,7 +11,7 @@
          "request": "launch",
          "program": "${workspaceFolder}/${fileBasenameNoExtension}.exe",
          "args": [
-            "${workspaceFolder}/tests/array_acess/t1.bpl",
+            "${workspaceFolder}/tests/function_definition/t1.bpl",
             "${workspaceFolder}/output.s"
          ],
          "stopAtEntry": false,

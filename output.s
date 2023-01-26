@@ -1,23 +1,34 @@
+.text
+.globl f1
+f1:
+
+pushq %rbp
+movq %rsp, %rbp
+
 # vi1: -4
 # va2: -44
-subq $48, %rsp
+# pa1 -> %rdi | -56(%rbp)
+# pa2 -> %rsi | -64(%rbp)
+subq $64, %rsp
 
-movl $3, -4(%rbp)
+movl -4(%rbp), %eax
+addl $1, %eax
+movl %eax, -4(%rbp)
 
-cmpl $0, -4(%rbp)
-je .if0
-movl $0, -4(%rbp)
-.if0:
+leaq -44(%rbp), %rax
+movq $5, %rcx
+imulq $4, %rcx
+addq %rax, %rcx
+movl $2, (%rcx)
 
-cmpl $0, -4(%rbp)
-je .if1
-movl $11, -4(%rbp)
-.if1:
 
-cmpl $0, -4(%rbp)
-je .if2
-movl $22, -4(%rbp)
-.if2:
+leaq -44(%rbp), %rax
+movq $8, %rcx
+imulq $4, %rcx
+addq %rax, %rcx
+movl (%rcx), %ecx
+movl %ecx, -4(%rbp)
 
-.text
-call .f1
+leave
+ret
+
