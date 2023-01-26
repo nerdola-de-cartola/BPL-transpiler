@@ -6,5 +6,5 @@ enddef
 
 set va2 index ci5 with ci2    
 get va2 index ci5 to vi1        
-set va2 index ci0 with vi1
+set va2 index ci10 with vi1
 get va2 index ci10 to vi3        
