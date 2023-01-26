@@ -26,14 +26,14 @@ int main(int argc, char **argv)
    }
 
    F_SOURCE = fopen(argv[1], "rt");
-   if(F_SOURCE == NULL) 
+   if (F_SOURCE == NULL)
    {
       printf("impossible to read file\n");
       return 1;
    }
 
    F_OUTPUT = fopen(argv[2], "wt");
-   if(F_SOURCE == NULL) 
+   if (F_SOURCE == NULL)
    {
       printf("impossible to write file\n");
       return 1;
@@ -50,6 +50,8 @@ int main(int argc, char **argv)
          localVariables();
       else if (charInStr('=', BUFFER))
          assignment();
+      else if (strInStr(BUFFER, "index"))
+         arrayAccess();
       else if (strInStr(BUFFER, "if"))
          ifStatement();
 
@@ -70,47 +72,48 @@ int main(int argc, char **argv)
 
 void remove_newline(char *ptr)
 {
-  while (*ptr) {
-    if (*ptr == '\n' || *ptr == '\r')
-      *ptr = 0;
-    else
-      ptr++;
-  }
+   while (*ptr)
+   {
+      if (*ptr == '\n' || *ptr == '\r')
+         *ptr = 0;
+      else
+         ptr++;
+   }
 }
 
-bool strInStr(char *string, char*substring) {
+bool strInStr(char *string, char *substring)
+{
    int i, j;
 
-   for(i = 0, j = 0; string[i] != '\0'; i++) {
+   for (i = 0, j = 0; string[i] != '\0'; i++)
+   {
 
-      if(string[i] == substring[j])
+      if (string[i] == substring[j])
          j++;
 
-      if(substring[j] == '\0')
+      if (substring[j] == '\0')
          return true;
-
    }
 
    return false;
 }
 
-void verifyLocalVariables(char c1, char c2, char c3, int index) {
+void verifyLocalVariables(char c1, char c2, char c3, int index)
+{
 
-      if (index > 5 || index < 1)
+   if (index > 5 || index < 1)
+      error("invalid type in localVariables");
+
+   if (c1 == 'a') // var vi1
+   {
+      if (c2 != 'r' || c3 != 'i')
          error("invalid type in localVariables");
-
-   
-      if(c1 == 'a') // var vi1
-      {
-         if(c2 != 'r' || c3 != 'i')
-            error("invalid type in localVariables");
-      }
-      else if(c1 == 'e') // vet va1
-      {
-         if(c2 != 't' || c3 != 'a' || !strInStr(BUFFER, "size ci"))
-            error("invalid type in localVariables");
-      }
-
+   }
+   else if (c1 == 'e') // vet va1
+   {
+      if (c2 != 't' || c3 != 'a' || !strInStr(BUFFER, "size ci"))
+         error("invalid type in localVariables");
+   }
 }
 
 void localVariables()
@@ -135,8 +138,8 @@ void localVariables()
           &index,
           &vetSize); // se r = 4 variável (int) se r = 5 variável (int vetor)
 
-
-      if(strcmp(BUFFER, "enddef") == 0) break;
+      if (strcmp(BUFFER, "enddef") == 0)
+         break;
 
       verifyLocalVariables(varORvet, filler1, filler2, index);
 
@@ -159,7 +162,8 @@ void localVariables()
             lastStackPos++;
 
          VARIABLES[index - 1].stackPosition = lastStackPos + VARIABLES[index - 1].size;
-      } else 
+      }
+      else
       {
          error("Invalid local variable");
       }
@@ -189,7 +193,7 @@ void printLocalVariables(int index)
 
 void subq(int lastStackPos)
 {
-   while(lastStackPos % 16 != 0)
+   while (lastStackPos % 16 != 0)
       lastStackPos++;
 
    fprintf(F_OUTPUT, "subq $%d, %%rsp\n", lastStackPos);
@@ -214,32 +218,29 @@ bool charInStr(const char c, const char *str)
    return false;
 }
 
-void simpleAssignment(int index_destiny, int index_source, char type_source) {
+void simpleAssignment(int index_destiny, int index_source, char type_source)
+{
 
    Variable *destiny = getVariable(index_destiny);
 
-   if(type_source == 'c') 
+   if (type_source == 'c')
       fprintf(
-         F_OUTPUT,
-         "movl $%d, -%d(%%rbp)\n",
-         index_source,
-         destiny->stackPosition
-      );
+          F_OUTPUT,
+          "movl $%d, -%d(%%rbp)\n",
+          index_source,
+          destiny->stackPosition);
    else
    {
 
       Variable *source = getVariable(index_source);
 
       fprintf(
-         F_OUTPUT,
-         "movl -%d(%%rbp), -%d(%%rbp)\n",
-         source->stackPosition,
-         destiny->stackPosition
-      );
+          F_OUTPUT,
+          "movl -%d(%%rbp), -%d(%%rbp)\n",
+          source->stackPosition,
+          destiny->stackPosition);
    }
-   
 }
-
 
 void assignment()
 {
@@ -257,21 +258,20 @@ void assignment()
        &index_source1,
        &operand,
        &type_source2,
-       &index_source2
-      );
+       &index_source2);
 
-   if(r != 4 && r != 7)
+   if (r != 4 && r != 7)
       error("invalid assignment");
 
-   if (r == 4) {
+   if (r == 4)
+   {
 
       if (
           (type_destiny != 'v') ||
-          (type_source1 != 'v' && type_source1 != 'c')
-      ) error("invalid type in assignment");
+          (type_source1 != 'v' && type_source1 != 'c'))
+         error("invalid type in assignment");
 
       simpleAssignment(index_destiny, index_source1, type_source1);
-
    }
    else
    {
@@ -330,7 +330,6 @@ void assignment()
          break;
       }
    }
-   
 }
 
 void error(const char *error_type)
@@ -434,15 +433,15 @@ Register *add(char type1, int index1, char type2, int index2)
 {
    Register *r = getRegister(NULL, CALLER_SAVED);
 
-   if(type1 == 'c')
+   if (type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
-   else 
+   else
    {
       Variable *var1 = getVariable(index1);
       fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
    }
 
-   if(type2 == 'c')
+   if (type2 == 'c')
       fprintf(F_OUTPUT, "addl $%d, %%%s\n", index2, r->name32);
    else
    {
@@ -456,16 +455,16 @@ Register *add(char type1, int index1, char type2, int index2)
 Register *sub(char type1, int index1, char type2, int index2)
 {
    Register *r = getRegister(NULL, CALLER_SAVED);
-   
-   if(type1 == 'c')
+
+   if (type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
-   else 
+   else
    {
       Variable *var1 = getVariable(index1);
       fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
    }
 
-   if(type2 == 'c')
+   if (type2 == 'c')
       fprintf(F_OUTPUT, "subl $%d, %%%s\n", index2, r->name32);
    else
    {
@@ -480,16 +479,15 @@ Register *mul(char type1, int index1, char type2, int index2)
 {
    Register *r = getRegister(NULL, CALLER_SAVED);
 
-
-   if(type1 == 'c')
+   if (type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
-   else 
+   else
    {
       Variable *var1 = getVariable(index1);
       fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
    }
 
-   if(type2 == 'c')
+   if (type2 == 'c')
       fprintf(F_OUTPUT, "imull $%d, %%%s\n", index2, r->name32);
    else
    {
@@ -532,8 +530,7 @@ Register *divi(char type1, int index1, char type2, int index2)
    Register *rax = getRegister("rax", CALLER_SAVED);
    Register *r_tmp = getRegister(NULL, CALLER_SAVED);
 
-
-   if(type1 == 'c')
+   if (type1 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, rax->name32);
    else
    {
@@ -541,8 +538,7 @@ Register *divi(char type1, int index1, char type2, int index2)
       fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, rax->name32);
    }
 
-
-   if(type2 == 'c')
+   if (type2 == 'c')
       fprintf(F_OUTPUT, "movl $%d, %%%s\n", index2, r_tmp->name32);
    else
    {
@@ -558,14 +554,16 @@ Register *divi(char type1, int index1, char type2, int index2)
    return rax;
 }
 
-Variable *getVariable(int index) {
-   if(index < 1 || index > 5)
+Variable *getVariable(int index)
+{
+   if (index < 1 || index > 5)
       error("Invalid index of variable");
 
-   return &VARIABLES[index -1];
+   return &VARIABLES[index - 1];
 }
 
-void ifStatement() {
+void ifStatement()
+{
 
    int index;
    char c1, c2;
@@ -574,15 +572,17 @@ void ifStatement() {
 
    verifyIfStatement(c1, c2, index);
 
-   if(c1 == 'v') { //variável local
+   if (c1 == 'v')
+   { // variável local
       Variable *var = getVariable(index);
       fprintf(F_OUTPUT, "cmpl $0, -%d(%%rbp)\n", var->stackPosition);
-
-   } else if (c1 == 'c') { // constante
+   }
+   else if (c1 == 'c')
+   { // constante
       fprintf(F_OUTPUT, "cmpl $0, $%d\n", index);
-
-   } else { // parâmetro
-
+   }
+   else
+   { // parâmetro
    }
 
    fprintf(F_OUTPUT, "je .if%d\n", IF_INDEX);
@@ -596,15 +596,15 @@ void ifStatement() {
 
    readNewLine();
 
-   if(strcmp(BUFFER, "endif") != 0)
+   if (strcmp(BUFFER, "endif") != 0)
       error("Missing endif statement");
 
    fprintf(F_OUTPUT, ".if%d:\n", IF_INDEX);
    IF_INDEX++;
-
 }
 
-char *readNewLine() {
+char *readNewLine()
+{
    char *ptr = fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
 
    LINE_COUNT++;
@@ -613,22 +613,174 @@ char *readNewLine() {
    return ptr;
 }
 
-void verifyIfStatement(char c1, char c2, int index) {
+void verifyIfStatement(char c1, char c2, int index)
+{
 
-   if(c2 != 'i') error("Invalid type in if statement");
+   if (c2 != 'i')
+      error("Invalid type in if statement");
 
-   
-   if(c1 == 'v') { //if vi1
-      if(index < 1 || index > 5) error("Invalid type in if statement");
-   
-   } else if (c1 == 'c') { //if ci1
-      if(index < 0) error("Invalid type in if statement");
-
-   } else if(c1 == 'p') { //if pi1
-      if(index < 1 || index > 3) error("Invalid type in if statement");
-
-   } else {
+   if (c1 == 'v')
+   { // if vi1
+      if (index < 1 || index > 5)
+         error("Invalid type in if statement");
+   }
+   else if (c1 == 'c')
+   { // if ci1
+      if (index < 0)
+         error("Invalid type in if statement");
+   }
+   else if (c1 == 'p')
+   { // if pi1
+      if (index < 1 || index > 3)
+         error("Invalid type in if statement");
+   }
+   else
+   {
       error("Invalid type in if statement");
    }
-
 }
+
+//==============================================================================
+// Acesso a Array - Início
+//==============================================================================
+
+void verifyArrayAccess(int r, char c1, int id1, int index, char c2, char c3, int id2)
+{
+   if (index < 0)
+      error("invalid type in ArrayAccess Functions");
+
+   if (r != 6)
+      error("function 'sscanf' didn't perform as expected in ArrayAccess Functions");
+
+   if (c1 == 'v')
+   {
+      if (id1 < 1 || id1 > 5)
+         error("invalid type in ArrayAccess Functions");
+   }
+   else if (c1 == 'p')
+   {
+      // Parte referente a parâmetros
+   }
+   else
+      error("invalid type in ArrayAccess Functions");
+
+   if (c2 == 'v')
+   {
+      if (c3 != 'i' && c3 != 'a')
+         error("invalid type in ArrayAccess Functions");
+      if (id2 > 5 || id2 < 1)
+         error("invalid type in ArrayAccess Functions");
+   }
+   else if (c2 == 'c')
+   {
+      if (strInStr(BUFFER, "get") || id2 < 0)
+         error("invalid type in ArrayAccess Functions");
+   }
+   else if (c2 == 'p')
+   {
+      // Parte referente a parâmetros
+   }
+   else
+      error("invalid type in ArrayAccess Functions");
+}
+
+void arrayAccess()
+{
+   int r;
+   char parORvet, parORvarORconst, filler;
+   int identifier1, identifier2, index;
+
+   r = sscanf(
+       BUFFER,
+       "%*s %ca%d index ci%d %*s %c%c%d",
+       &parORvet,
+       &identifier1,
+       &index,
+       &parORvarORconst,
+       &filler,
+       &identifier2);
+
+   verifyArrayAccess(r, parORvet, identifier1, index, parORvarORconst, filler, identifier2);
+
+   if (parORvet == 'v') // Vetor de Inteiros
+   {
+      Variable *vet = getVariable(identifier1);
+
+      Register *r1 = getRegister(NULL, CALLER_SAVED);
+
+      Register *r2 = getRegister(NULL, CALLER_SAVED);
+
+      fprintf(F_OUTPUT, "leaq -%d(%%rbp), %%%s\n", vet->stackPosition, r1->name64);
+
+      fprintf(F_OUTPUT, "movq $%d, %%%s\n", index, r2->name64);
+
+      fprintf(F_OUTPUT, "imulq $4, %%%s\n", r2->name64);
+
+      fprintf(F_OUTPUT, "addq %%%s, %%%s\n", r1->name64, r2->name64);
+
+      if (strInStr(BUFFER, "get"))
+      {
+         arrayAccessGet(r2, parORvarORconst, identifier2);
+      }
+      else if (strInStr(BUFFER, "set"))
+      {
+         arrayAccessSet(r2, parORvarORconst, identifier2);
+      }
+      else
+      {
+         error("Invalid array access");
+      }
+
+      freeRegister(&r1);
+      freeRegister(&r2);
+   }
+   /*else if(parORvet == 'p') // Parâmetro Array
+   {
+       // Quando a parte de parâmetros estiver pronta;
+   }*/
+}
+
+void arrayAccessGet(Register *r, char type, int index)
+{
+   if (type == 'v')
+   {
+      Variable *var = getVariable(index);
+
+      fprintf(F_OUTPUT, "movl (%%%s), %%%s\n", r->name64, r->name32);
+      fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", r->name32, var->stackPosition);
+   }
+   else
+   {
+      error("Invalid type in array get");
+   }
+   /*else if(type == 'p'){
+   // Quando a parte de parâmetros estiver pronta;
+   }*/
+}
+
+void arrayAccessSet(Register *r, char type, int index)
+{
+   if (type == 'v')
+   {
+      Variable *var = getVariable(index);
+      Register *tmp = getRegister(NULL, CALLER_SAVED);
+
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var->stackPosition, tmp->name32);
+      fprintf(F_OUTPUT, "movl %%%s, (%%%s)\n", tmp->name32, r->name64);
+   }
+   else if (type == 'c')
+   {
+      fprintf(F_OUTPUT, "movl $%d, (%%%s)\n", index, r->name64);
+   }
+   else
+   {
+      error("Invalid type in array set");
+   }
+   /*else if(type == 'p'){
+   // Quando a parte de parâmetros estiver pronta;
+   }*/
+}
+
+//==============================================================================
+// Acesso a Array - Fim
+//==============================================================================
