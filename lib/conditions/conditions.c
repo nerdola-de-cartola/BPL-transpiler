@@ -22,7 +22,9 @@ void ifStatement()
       fprintf(F_OUTPUT, "cmpl $0, $%d\n", index);
    }
    else
-   { // parâmetro
+   { 
+      Parameter *p = getParameter(index);
+      fprintf(F_OUTPUT, "cmpl $0, %%%s\n", p->reg->name32);
    }
 
    fprintf(F_OUTPUT, "je .if%d\n", IF_INDEX);

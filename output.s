@@ -22,6 +22,7 @@ cmpl $0, $10
 je .if1
 .if1:
 
+cmpl $0, %esi
 je .if2
 .if2:
 
