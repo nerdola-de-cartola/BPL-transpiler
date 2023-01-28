@@ -11,7 +11,7 @@
          "request": "launch",
          "program": "${workspaceFolder}/${fileBasenameNoExtension}.exe",
          "args": [
-            "${workspaceFolder}/tests/assignment/t1.bpl",
+            "${workspaceFolder}/tests/local_variables/t1.bpl",
             "${workspaceFolder}/output.s"
          ],
          "stopAtEntry": false,

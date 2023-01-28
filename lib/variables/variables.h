@@ -15,7 +15,7 @@ typedef struct
    int type;
 } Variable;
 
-void verifyLocalVariables(char c1, char c2, char c3, int index);
+void verifyLocalVariables(int qtd, char c1, char c2, char c3, int index);
 
 void clearVARIABLES();
 

@@ -5,8 +5,11 @@ Variable VARIABLES[MAX_VARIABLE];
 extern FILE *F_OUTPUT;
 extern char BUFFER[MAX_LINE_SIZE];
 
-void verifyLocalVariables(char c1, char c2, char c3, int index)
+void verifyLocalVariables(int qtd, char c1, char c2, char c3, int index)
 {
+
+   if(qtd != 4 && qtd != 5)
+      error("Invalid read in local variables");
 
    if (index > 5 || index < 1)
       error("invalid type in localVariables");
@@ -28,9 +31,9 @@ void clearVARIABLES()
    int i;
    Variable *var;
 
-   for (i = 1; i <= MAX_VARIABLE; i++)
+   for (i = 0; i < MAX_VARIABLE; i++)
    {
-      var = getVariable(i);
+      var = &VARIABLES[i];
 
       var->size = 0;
       var->stackPosition = 0;
@@ -42,6 +45,9 @@ void clearVARIABLES()
 
 int localVariables()
 {
+
+   Function *f = getFunction(CURRENT_FUNCTION_INDEX);
+   Variable *var = NULL;
 
    int r;
    char varORvet, filler1, filler2;
@@ -65,34 +71,34 @@ int localVariables()
       if (strcmp(BUFFER, "enddef") == 0)
          break;
 
-      verifyLocalVariables(varORvet, filler1, filler2, index);
+      verifyLocalVariables(r, varORvet, filler1, filler2, index);
+
+      f->variableCount++;
+
+      var = getVariable(index);
 
       if (r == 4) /* Se for Variável inteira */
       {
-         VARIABLES[index - 1].size = 4;
-         VARIABLES[index - 1].type = INT;
+         var->size = 4;
+         var->type = INT;
 
          while (lastStackPos % 4 != 0)
             lastStackPos++;
 
-         VARIABLES[index - 1].stackPosition = lastStackPos + 4;
+         var->stackPosition = lastStackPos + 4;
       }
       else if (r == 5) /* Se for Vetor de inteiros */
       {
-         VARIABLES[index - 1].size = 4 * vetSize;
-         VARIABLES[index - 1].type = VET;
+         var->size = 4 * vetSize;
+         var->type = VET;
 
          while (lastStackPos % 4 != 0)
             lastStackPos++;
 
-         VARIABLES[index - 1].stackPosition = lastStackPos + VARIABLES[index - 1].size;
-      }
-      else
-      {
-         error("Invalid local variable");
+         var->stackPosition = lastStackPos + var->size;
       }
 
-      lastStackPos = VARIABLES[index - 1].stackPosition;
+      lastStackPos = var->stackPosition;
 
       printLocalVariables(index);
    }
@@ -117,7 +123,10 @@ void printLocalVariables(int index)
 
 Variable *getVariable(int index)
 {
-   if (index < 1 || index > 5)
+
+   Function *f = getFunction(CURRENT_FUNCTION_INDEX);
+
+   if (index < 1 || index > f->variableCount)
       error("Invalid index of variable");
 
    return &VARIABLES[index - 1];
