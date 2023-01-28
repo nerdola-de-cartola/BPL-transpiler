@@ -1,0 +1,24 @@
+{
+   "files.associations": {
+      "optional": "c",
+      "functional": "c",
+      "limits": "c",
+      "numeric": "c",
+      "tuple": "c",
+      "functions.h": "c",
+      "bpl.h": "c",
+      "stdbool.h": "c",
+      "common.h": "c",
+      "stdio.h": "c",
+      "variables.h": "c",
+      "registers.h": "c",
+      "parameters.h": "c",
+      "assignment.h": "c",
+      "conditions.h": "c",
+      "array.h": "c",
+      "type.h": "c"
+   },
+   "cSpell.words": [
+      "Linkar"
+   ]
+}
