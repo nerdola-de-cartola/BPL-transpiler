@@ -8,7 +8,7 @@
 
 #pragma once
 
-void verifyArrayAccess(int r, char c1, int id1, int index, char c2, char c3, int id2);
+void verifyArrayAccess(int r, char c1, char c2, char c3);
 
 void arrayAccess();
 

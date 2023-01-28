@@ -4,44 +4,23 @@
 // Acesso a Array - Início
 //==============================================================================
 
-void verifyArrayAccess(int r, char c1, int id1, int index, char c2, char c3, int id2)
+void verifyArrayAccess(int r, char c1, char c2, char c3)
 {
-   if (index < 0)
-      error("invalid type in ArrayAccess Functions");
 
    if (r != 6)
       error("function 'sscanf' didn't perform as expected in ArrayAccess Functions");
 
-   if (c1 == 'v')
-   {
-      if (id1 < 1 || id1 > 5)
-         error("invalid type in ArrayAccess Functions");
-   }
-   else if (c1 == 'p')
-   {
-      // Parte referente a parâmetros
-   }
-   else
-      error("invalid type in ArrayAccess Functions");
+   if(c1 != 'v' && c1 != 'p')
+      error("Invalid array");
+   
+   if(c2 != 'v' && c2 != 'p' && c2 != 'c')
+      error("Invalid assignment with array");
 
-   if (c2 == 'v')
-   {
-      if (c3 != 'i' && c3 != 'a')
-         error("invalid type in ArrayAccess Functions");
-      if (id2 > 5 || id2 < 1)
-         error("invalid type in ArrayAccess Functions");
-   }
-   else if (c2 == 'c')
-   {
-      if (strInStr(BUFFER, "get") || id2 < 0)
-         error("invalid type in ArrayAccess Functions");
-   }
-   else if (c2 == 'p')
-   {
-      // Parte referente a parâmetros
-   }
-   else
-      error("invalid type in ArrayAccess Functions");
+   if(c3 != 'i')
+      error("Invalid assignment with array");
+
+   if(strInStr(BUFFER, "get") && c2 == 'c')
+      error("Invalid assignment to const in array access");
 }
 
 void arrayAccess()
@@ -60,7 +39,7 @@ void arrayAccess()
        &filler,
        &identifier2);
 
-   verifyArrayAccess(r, parORvet, identifier1, index, parORvarORconst, filler, identifier2);
+   verifyArrayAccess(r, parORvet, parORvarORconst, filler);
 
    if (parORvet == 'v') // Vetor de Inteiros
    {
@@ -109,10 +88,6 @@ void arrayAccessGet(Register *r, char type, int index)
       fprintf(F_OUTPUT, "movl (%%%s), %%%s\n", r->name64, r->name32);
       fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", r->name32, var->stackPosition);
    }
-   else
-   {
-      error("Invalid type in array get");
-   }
    /*else if(type == 'p'){
    // Quando a parte de parâmetros estiver pronta;
    }*/
@@ -131,10 +106,6 @@ void arrayAccessSet(Register *r, char type, int index)
    else if (type == 'c')
    {
       fprintf(F_OUTPUT, "movl $%d, (%%%s)\n", index, r->name64);
-   }
-   else
-   {
-      error("Invalid type in array set");
    }
    /*else if(type == 'p'){
    // Quando a parte de parâmetros estiver pronta;
