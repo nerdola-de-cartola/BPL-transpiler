@@ -42,7 +42,7 @@ typedef struct {
    int parameterCount;
    Parameter parameters[3];
    int variableCount;
-   int order;
+   bool valid;
 } Function;
 
 void beginFile();
@@ -53,11 +53,7 @@ void assignment();
 
 void error(const char *error_type);
 
-Register *add(char type1, int index1, char type2, int index2);
-
-Register *sub(char type1, int index1, char type2, int index2);
-
-Register *mul(char type1, int index1, char type2, int index2);
+Register *operation(char op, char type1, int index1, char type2, int index2);
 
 Register *divi(char type1, int index1, char type2, int index2);
 
@@ -97,8 +93,27 @@ bool strInStr(char *string, char*substring);
 
 void functionDefinition();
 
-void printFunctionHeader(Function *function);
+void printFunctionHeader();
 
 void printFunctionEnd();
 
 void verifyParams(int order, char type1, char type2, char type3, int paramQtd);
+
+Function *getFunction(int index);
+
+void setOperation(char op, char *operation);
+
+void verifyAssignment(
+   int qtd_args,
+   char op,
+   char type_destiny,
+   char type_source1,
+   char type_source2);
+
+bool isOperator(char op);
+
+void functionsInit();
+
+int paramDefinition(int stackSize);
+
+Parameter *getParameter(int index);

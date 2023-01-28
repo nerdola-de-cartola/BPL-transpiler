@@ -10,6 +10,7 @@ Function FUNCTIONS[MAX_FUNCTION];
 FILE *F_SOURCE;
 FILE *F_OUTPUT;
 int LINE_COUNT, IF_INDEX;
+int CURRENT_FUNCTION_INDEX;
 char BUFFER[MAX_LINE_SIZE];
 
 //==============================================================================
@@ -43,6 +44,7 @@ int main(int argc, char **argv)
    LINE_COUNT = 0;
    IF_INDEX = 0;
    registersInit();
+   functionsInit();
 
    beginFile();
 
@@ -55,7 +57,6 @@ int main(int argc, char **argv)
       fprintf(F_OUTPUT, "\n");
    }
 
-
    fclose(F_SOURCE);
    fclose(F_OUTPUT);
 
@@ -65,6 +66,18 @@ int main(int argc, char **argv)
 //==============================================================================
 // Código das Funções Auxiliares
 //==============================================================================
+
+void functionsInit() {
+
+   int i;
+
+   for(i = 0; i < MAX_FUNCTION; i++) {
+      FUNCTIONS[i].parameterCount = 0;
+      FUNCTIONS[i].valid = false;
+      FUNCTIONS[i].variableCount = 0;
+   }
+
+}
 
 void remove_newline(char *ptr)
 {
@@ -114,57 +127,67 @@ void verifyLocalVariables(char c1, char c2, char c3, int index)
 
 void verifyParams(int order, char type1, char type2, char type3, int paramQtd)
 {
-   if(order < 1 || order > MAX_FUNCTION) error("Invalid function index");
+   if (order < 1 || order > MAX_FUNCTION)
+      error("Invalid function index");
 
-   if(paramQtd >=1)
-      if(type1 != 'i' && type1 != 'a') error("Invalid param type");
+   if (paramQtd >= 1)
+      if (type1 != 'i' && type1 != 'a')
+         error("Invalid param type");
 
-   if(paramQtd >= 2)
-      if(type2 != 'i' && type2 != 'a') error("Invalid param type");
+   if (paramQtd >= 2)
+      if (type2 != 'i' && type2 != 'a')
+         error("Invalid param type");
 
-   if(paramQtd == 3) 
-      if(type3 != 'i' && type3 != 'a') error("Invalid param type");
+   if (paramQtd == 3)
+      if (type3 != 'i' && type3 != 'a')
+         error("Invalid param type");
 }
 
-void printParam(Parameter *p, int index) {
-
-   if(p->type == INT)
-      fprintf(F_OUTPUT, "# pi%d -> %%%s | -%d(%%rbp)\n", index, p->reg->name32, p->stackPosition);
-   else 
-      fprintf(F_OUTPUT, "# pa%d -> %%%s | -%d(%%rbp)\n", index, p->reg->name64, p->stackPosition);
-
-}
-
-int paramDefinition(Function *f, int stackSize) 
+void printParam(Parameter *p, int index)
 {
 
+   if (p->type == INT)
+      fprintf(F_OUTPUT, "# pi%d -> %%%s | -%d(%%rbp)\n", index, p->reg->name32, p->stackPosition);
+   else
+      fprintf(F_OUTPUT, "# pa%d -> %%%s | -%d(%%rbp)\n", index, p->reg->name64, p->stackPosition);
+}
+
+int paramDefinition(int stackSize)
+{
+
+   Function *f = getFunction(CURRENT_FUNCTION_INDEX); 
    int i;
-   
-   for(i = 0; i < f->parameterCount; i++)
+
+   for (i = 0; i < f->parameterCount; i++)
    {
-      if(f->parameters[i].type == INT) {
+      if (f->parameters[i].type == INT)
+      {
          stackSize += 4;
-         while(stackSize % 4 != 0) stackSize++;
-
-      } else if(f->parameters[i].type == VET) {
+         while (stackSize % 4 != 0)
+            stackSize++;
+      }
+      else if (f->parameters[i].type == VET)
+      {
          stackSize += 8;
-         while(stackSize % 8 != 0) stackSize++;
-
+         while (stackSize % 8 != 0)
+            stackSize++;
       }
 
       f->parameters[i].stackPosition = stackSize;
 
-      printParam(&f->parameters[i], i+1);
+      printParam(&f->parameters[i], i + 1);
    }
 
    return stackSize;
 }
 
-void clearVARIABLES() {
+void clearVARIABLES()
+{
    int i;
    Variable *var;
 
-   for(i = 1; i <= MAX_VARIABLE; i++) {
+   for (i = 1; i <= MAX_VARIABLE; i++)
+   {
       var = getVariable(i);
 
       var->size = 0;
@@ -175,59 +198,58 @@ void clearVARIABLES() {
 
 void functionDefinition()
 {
-   int order;
    char type1, type2, type3;
-   
-   int paramLenght = sscanf(BUFFER, "function f%d p%c1 p%c2 p%c3", 
-      &order,
-      &type1,
-      &type2,
-      &type3
-   );
 
-   Function function = {0};
-   function.order = order;
-   function.parameterCount = paramLenght - 1;
+   int paramLenght = sscanf(BUFFER, "function f%d p%c1 p%c2 p%c3",
+                            &CURRENT_FUNCTION_INDEX,
+                            &type1,
+                            &type2,
+                            &type3);
 
-   verifyParams(order, type1, type2, type3, function.parameterCount);
+   FUNCTIONS[CURRENT_FUNCTION_INDEX - 1].valid = true;
+   Function *function = getFunction(CURRENT_FUNCTION_INDEX);
+   function->parameterCount = paramLenght - 1;
 
-   if(function.parameterCount >= 1)
+   verifyParams(CURRENT_FUNCTION_INDEX, type1, type2, type3, function->parameterCount);
+
+   if (function->parameterCount >= 1)
    {
-      function.parameters[0].type = type1 == 'i' ? INT : VET;
-      function.parameters[0].reg = getRegister("rdi", CALLER_SAVED);
+      function->parameters[0].type = type1 == 'i' ? INT : VET;
+      function->parameters[0].reg = getRegister("rdi", CALLER_SAVED);
    }
-   if(function.parameterCount >= 2)
+   if (function->parameterCount >= 2)
    {
-      function.parameters[1].type = type2 == 'i' ? INT : VET;
-      function.parameters[1].reg = getRegister("rsi", CALLER_SAVED);
+      function->parameters[1].type = type2 == 'i' ? INT : VET;
+      function->parameters[1].reg = getRegister("rsi", CALLER_SAVED);
    }
-   if(function.parameterCount >= 3)
+   if (function->parameterCount >= 3)
    {
-      function.parameters[2].type = type3 == 'i' ? INT : VET;
-      function.parameters[2].reg = getRegister("rdx", CALLER_SAVED);
+      function->parameters[2].type = type3 == 'i' ? INT : VET;
+      function->parameters[2].reg = getRegister("rdx", CALLER_SAVED);
    }
 
-   printFunctionHeader(&function);
+   printFunctionHeader();
 
    clearVARIABLES();
 
    readNewLine();
 
-   if(strcmp(BUFFER, "def") != 0)
+   if (strcmp(BUFFER, "def") != 0)
       error("Missing definition of local variables");
 
    int stackSize = localVariables();
-   stackSize = paramDefinition(&function, stackSize);
+   stackSize = paramDefinition(stackSize);
    subq(stackSize);
 
-   while(true) {
-      
+   while (true)
+   {
+
       readNewLine();
-      
-      if(strcmp(BUFFER, "end") == 0)
+
+      if (strcmp(BUFFER, "end") == 0)
          break;
       else if (charInStr('=', BUFFER))
-         assignment();
+         assignment(&function);
       else if (strInStr(BUFFER, "index"))
          arrayAccess();
       else if (strInStr(BUFFER, "if"))
@@ -240,8 +262,6 @@ void functionDefinition()
 
    // leave ret
    printFunctionEnd();
-
-   FUNCTIONS[order-1] = function;
 }
 
 int localVariables()
@@ -344,28 +364,116 @@ bool charInStr(const char c, const char *str)
    return false;
 }
 
-void simpleAssignment(int index_destiny, int index_source, char type_source)
+void simpleAssignment(int index_destiny, int index_source, char type_destiny, char type_source)
 {
 
-   Variable *destiny = getVariable(index_destiny);
+   Variable *source_v = NULL;
+   Parameter *source_p = NULL;
+   Register *tmp = NULL;
 
-   if (type_source == 'c')
-      fprintf(
-          F_OUTPUT,
-          "movl $%d, -%d(%%rbp)\n",
-          index_source,
-          destiny->stackPosition);
-   else
-   {
+   if(type_destiny == 'v') {
 
-      Variable *source = getVariable(index_source);
+      Variable *destiny = getVariable(index_destiny);
 
-      fprintf(
-          F_OUTPUT,
-          "movl -%d(%%rbp), -%d(%%rbp)\n",
-          source->stackPosition,
-          destiny->stackPosition);
+      switch (type_source)
+      {
+      case 'c':
+         fprintf(F_OUTPUT, "movl $%d, -%d(%%rbp)\n", index_source, destiny->stackPosition);
+         break;
+      
+      case 'v':
+         tmp = getRegister(NULL, CALLER_SAVED);
+         source_v = getVariable(index_source);
+
+         fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", source_v->stackPosition, tmp->name32);
+
+         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", tmp->name32, destiny->stackPosition);
+
+         freeRegister(&tmp);
+
+         break;
+
+      case 'p':
+         source_p = getParameter(index_source);
+
+         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", source_p->reg->name32 , destiny->stackPosition);
+
+         break;
+
+      }
+
+      return;
+   } else {
+
+      Parameter *destiny = getParameter(index_destiny);
+
+      switch (type_source)
+      {
+      case 'c':
+         fprintf(F_OUTPUT, "movl $%d, %%%s\n", index_source, destiny->reg->name32);
+         break;
+      
+      case 'v':
+         source_v = getVariable(index_source);
+
+         fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", source_v->stackPosition, destiny->reg->name32);
+
+         break;
+
+      case 'p':
+         source_p = getParameter(index_source);
+
+         fprintf(F_OUTPUT, "movl %%%s, %%%s\n", source_p->reg->name32 , destiny->reg->name32);
+
+         break;
+
+      }
+
    }
+
+}
+
+bool isOperator(char op) {
+
+   if(op != '+' && op != '-' && op != '*' && op != '/') return false;
+   return true;
+
+}
+
+void verifyAssignment(
+   int qtd_args,
+   char op,
+   char type_destiny,
+   char type_source1,
+   char type_source2)
+{
+
+   // Verifica a quantidade de parâmetros encontrados
+   if(qtd_args != 4 && qtd_args != 7)
+      error("Invalid assignment type");
+
+   // Verifica o tipo do destino
+   if(type_destiny != 'v' && type_destiny != 'p')
+      error("Invalid destiny in assignment");
+
+   // Verifica a primeira fonte
+   if(type_source1 != 'v' && type_source1 != 'p' && type_source1 != 'c')
+      error("Invalid first member in operation");
+
+
+   // Se for uma operação
+   if(qtd_args == 7) {
+
+      // Verifica o operador
+      if(!isOperator(op))
+         error("Invalid operator");
+
+      // Verifica a segunda fonte
+      if(type_source2 != 'v' && type_source2 != 'p' && type_source2 != 'c')
+         error("Invalid first member in operation");
+
+   }
+
 }
 
 void assignment()
@@ -386,76 +494,30 @@ void assignment()
        &type_source2,
        &index_source2);
 
-   if (r != 4 && r != 7)
-      error("invalid assignment");
+   
+   verifyAssignment(
+      r,
+      operand,
+      type_destiny,
+      type_source1,
+      type_source2
+   );
 
    if (r == 4)
    {
-
-      if (
-          (type_destiny != 'v') ||
-          (type_source1 != 'v' && type_source1 != 'c'))
-         error("invalid type in assignment");
-
-      simpleAssignment(index_destiny, index_source1, type_source1);
+      simpleAssignment(index_destiny, index_source1, type_destiny, type_source1);
+      return;
    }
-   else
-   {
-      Register *reg;
-      Variable *destiny = getVariable(index_destiny);
+   
+   Register *reg;
+   Variable *destiny = getVariable(index_destiny);
 
-      if (
-          (type_destiny != 'v') ||
-          (type_source1 != 'v' && type_source1 != 'c') ||
-          (type_source2 != 'v' && type_source2 != 'c'))
-         error("invalid type in assignment");
+   reg = operation(operand, type_source1, index_source1, type_source2, index_source2);
 
-      switch (operand)
-      {
-      case '+':
-         reg = add(type_source1, index_source1, type_source2, index_source2);
+   fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
 
-         if (reg == NULL)
-            error("no register available");
+   freeRegister(&reg);
 
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
-         freeRegister(&reg);
-         break;
-
-      case '-':
-         reg = sub(type_source1, index_source1, type_source2, index_source2);
-
-         if (reg == NULL)
-            error("no register available");
-
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
-         freeRegister(&reg);
-         break;
-
-      case '*':
-         reg = mul(type_source1, index_source1, type_source2, index_source2);
-
-         if (reg == NULL)
-            error("no register available");
-
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
-         freeRegister(&reg);
-         break;
-
-      case '/':
-         reg = divi(type_source1, index_source1, type_source2, index_source2);
-
-         if (reg == NULL)
-            error("no register available");
-
-         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", reg->name32, destiny->stackPosition);
-         freeRegister(&reg);
-         break;
-      default:
-         error("invalid operand in assignment");
-         break;
-      }
-   }
 }
 
 void error(const char *error_type)
@@ -555,70 +617,87 @@ void registersInit()
    strcpy(REGISTERS[15].name64, "r15");
 }
 
-Register *add(char type1, int index1, char type2, int index2)
-{
-   Register *r = getRegister(NULL, CALLER_SAVED);
+Parameter *getParameter(int index) {
 
-   if (type1 == 'c')
-      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
-   else
-   {
-      Variable *var1 = getVariable(index1);
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
-   }
+   Function *f = getFunction(CURRENT_FUNCTION_INDEX); 
 
-   if (type2 == 'c')
-      fprintf(F_OUTPUT, "addl $%d, %%%s\n", index2, r->name32);
-   else
-   {
-      Variable *var2 = getVariable(index2);
-      fprintf(F_OUTPUT, "addl -%d(%%rbp), %%%s\n", var2->stackPosition, r->name32);
-   }
+   if(index < 1 || index > f->parameterCount)
+      error("Invalid index of parameter");
 
-   return r;
+   return &f->parameters[index - 1];
 }
 
-Register *sub(char type1, int index1, char type2, int index2)
-{
-   Register *r = getRegister(NULL, CALLER_SAVED);
-
-   if (type1 == 'c')
-      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
-   else
+void setOperation(char op, char *operation) {
+   switch (op)
    {
-      Variable *var1 = getVariable(index1);
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
-   }
+   case '+':
+      strcpy(operation, "addl");
+      break;
 
-   if (type2 == 'c')
-      fprintf(F_OUTPUT, "subl $%d, %%%s\n", index2, r->name32);
-   else
-   {
-      Variable *var2 = getVariable(index2);
-      fprintf(F_OUTPUT, "subl -%d(%%rbp), %%%s\n", var2->stackPosition, r->name32);
-   }
+   case '-':
+      strcpy(operation, "subl");
+      break;
 
-   return r;
+   case '*':
+      strcpy(operation, "imull");
+      break;
+
+   case '/':
+      strcpy(operation, "idivl");
+      break;
+   
+   }
 }
 
-Register *mul(char type1, int index1, char type2, int index2)
+Register *operation(char op, char type1, int index1, char type2, int index2)
 {
-   Register *r = getRegister(NULL, CALLER_SAVED);
+   Register *r = NULL;
+   Variable *v = NULL;
+   Parameter *p = NULL;
 
-   if (type1 == 'c')
-      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
-   else
-   {
-      Variable *var1 = getVariable(index1);
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, r->name32);
+   char operation[6];
+   setOperation(op, operation);
+
+   if(op == '/') {
+      r = divi(type1, index1, type2, index2);
+      return r;
    }
 
-   if (type2 == 'c')
-      fprintf(F_OUTPUT, "imull $%d, %%%s\n", index2, r->name32);
-   else
+   r = getRegister(NULL, CALLER_SAVED);
+
+   switch (type1)
    {
-      Variable *var2 = getVariable(index2);
-      fprintf(F_OUTPUT, "imull -%d(%%rbp), %%%s\n", var2->stackPosition, r->name32);
+   case 'c':
+      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, r->name32);
+      break;
+
+   case 'v':
+      v = getVariable(index1);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", v->stackPosition, r->name32);
+      break;
+
+   case 'p':
+      p = getParameter(index1);
+      fprintf(F_OUTPUT, "movl %%%s, %%%s\n", p->reg->name32, r->name32);
+      break;
+   }
+
+   switch (type2)
+   {
+   case 'c':
+      fprintf(F_OUTPUT, "%s $%d, %%%s\n", operation, index2, r->name32);
+      break;
+   
+   case 'v':
+      v = getVariable(index2);
+      fprintf(F_OUTPUT, "%s -%d(%%rbp), %%%s\n", operation, v->stackPosition, r->name32);
+      break;
+   
+   case 'p':
+      p = getParameter(index2);
+      fprintf(F_OUTPUT, "%s %%%s, %%%s\n", operation, p->reg->name32, r->name32);
+      break;
+   
    }
 
    return r;
@@ -642,6 +721,8 @@ Register *getRegister(char *name64, int type)
       }
    }
 
+   error("No register available");
+
    return NULL;
 }
 
@@ -655,21 +736,42 @@ Register *divi(char type1, int index1, char type2, int index2)
 {
    Register *rax = getRegister("rax", CALLER_SAVED);
    Register *r_tmp = getRegister(NULL, CALLER_SAVED);
+   Variable *v = NULL;
+   Parameter *p = NULL;
 
-   if (type1 == 'c')
-      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, rax->name32);
-   else
+   switch (type1)
    {
-      Variable *var1 = getVariable(index1);
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var1->stackPosition, rax->name32);
+   case 'c':
+      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index1, rax->name32);
+      break;
+   
+   case 'v':
+      v = getVariable(index1);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", v->stackPosition, rax->name32);
+
+   case 'p':
+      p = getParameter(index1);
+      fprintf(F_OUTPUT, "movl %%%s, %%%s\n", p->reg->name32, rax->name32);
+
    }
 
-   if (type2 == 'c')
-      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index2, r_tmp->name32);
-   else
+   
+   switch (type2)
    {
-      Variable *var2 = getVariable(index2);
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", var2->stackPosition, r_tmp->name32);
+   case 'c':
+      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index2, r_tmp->name32);
+      break;
+   
+   case 'v':
+      v = getVariable(index2);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", v->stackPosition, r_tmp->name32);
+      break;
+
+   case 'p':
+      p = getParameter(index2);
+      fprintf(F_OUTPUT, "movl %%%s, %%%s\n", p->reg->name32, r_tmp->name32);
+      break;
+
    }
 
    fprintf(F_OUTPUT, "cltd\n");
@@ -733,14 +835,15 @@ char *readNewLine()
 {
    char *ptr = NULL;
 
-   while(true)
+   while (true)
    {
       ptr = fgets(BUFFER, MAX_LINE_SIZE, F_SOURCE);
 
       LINE_COUNT++;
       remove_newline(BUFFER);
 
-      if(BUFFER[0] != '\0' || ptr == NULL) break;
+      if (BUFFER[0] != '\0' || ptr == NULL)
+         break;
    }
 
    return ptr;
@@ -755,11 +858,6 @@ void verifyIfStatement(char c1, char c2, int index)
    if (c1 == 'v')
    { // if vi1
       if (index < 1 || index > 5)
-         error("Invalid type in if statement");
-   }
-   else if (c1 == 'c')
-   { // if ci1
-      if (index < 0)
          error("Invalid type in if statement");
    }
    else if (c1 == 'p')
@@ -918,13 +1016,29 @@ void arrayAccessSet(Register *r, char type, int index)
 // Acesso a Array - Fim
 //==============================================================================
 
-void printFunctionHeader(Function *function){
-   fprintf(F_OUTPUT, ".globl f%d\n", function->order);
-   fprintf(F_OUTPUT, "f%d:\n\n", function->order);
+Function *getFunction(int index) {
+
+   if(index < 1 || index > MAX_FUNCTION || !FUNCTIONS[index - 1].valid)
+      error("Invalid function index");
+
+   return &FUNCTIONS[index - 1];
+}
+
+void printFunctionHeader()
+{
+   fprintf(F_OUTPUT, ".globl f%d\n", CURRENT_FUNCTION_INDEX);
+   fprintf(F_OUTPUT, "f%d:\n\n", CURRENT_FUNCTION_INDEX);
    fprintf(F_OUTPUT, "pushq %%rbp\n");
    fprintf(F_OUTPUT, "movq %%rsp, %%rbp\n\n");
 }
 
-void printFunctionEnd(){
+void printFunctionEnd()
+{
+   int i;
+   Function *f = getFunction(CURRENT_FUNCTION_INDEX); 
+
+   for(i = 0; i < f->parameterCount; i++)
+      freeRegister(&f->parameters[i].reg);
+
    fprintf(F_OUTPUT, "leave\nret\n");
 }
