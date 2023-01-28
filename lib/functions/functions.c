@@ -108,17 +108,17 @@ void returnFunction() {
    switch (type)
    {
    case 'c':
-      fprintf(F_OUTPUT, "movl $%d, %%%s", index, rax->name32);
+      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index, rax->name32);
       break;
 
    case 'v':
       v = getVariable(index);
-      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s", v->stackPosition, rax->name32);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", v->stackPosition, rax->name32);
       break;
 
    case 'p':
       p = getParameter(index);
-      fprintf(F_OUTPUT, "movl %%%s, %%%s", p->reg->name32, rax->name32);
+      fprintf(F_OUTPUT, "movl %%%s, %%%s\n", p->reg->name32, rax->name32);
       break;
    
    }
