@@ -73,6 +73,8 @@ void functionDefinition()
          arrayAccess();
       else if (strInStr(BUFFER, "if"))
          ifStatement();
+      else if(strInStr(BUFFER, "return"))
+         returnFunction();
       else
          error("Invalid instruction in function definition");
 
@@ -83,6 +85,46 @@ void functionDefinition()
    printFunctionEnd();
 }
 
+void verifyReturn(char type) {
+
+   if(type != 'c' && type != 'v' && type != 'p')
+      error("Invalid type in return function");
+
+}
+
+void returnFunction() {
+
+   char type;
+   int index;
+
+   sscanf(BUFFER, "return %ci%d", &type, &index);
+
+   verifyReturn(type);
+
+   Register *rax = getRegister("rax", CALLER_SAVED);
+   Variable *v = NULL;
+   Parameter *p = NULL;
+
+   switch (type)
+   {
+   case 'c':
+      fprintf(F_OUTPUT, "movl $%d, %%%s", index, rax->name32);
+      break;
+
+   case 'v':
+      v = getVariable(index);
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s", v->stackPosition, rax->name32);
+      break;
+
+   case 'p':
+      p = getParameter(index);
+      fprintf(F_OUTPUT, "movl %%%s, %%%s", p->reg->name32, rax->name32);
+      break;
+   
+   }
+
+}
+ 
 void subq(int lastStackPos)
 {
    while (lastStackPos % 16 != 0)

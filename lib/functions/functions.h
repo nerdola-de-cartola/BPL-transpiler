@@ -32,6 +32,10 @@ void functionsInit();
 
 void functionDefinition();
 
+void verifyReturn(char type);
+
+void returnFunction();
+
 void subq(int lastStackPos);
 
 Function *getFunction(int index);
