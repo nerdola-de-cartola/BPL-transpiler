@@ -33,9 +33,12 @@ void ifStatement()
 
    if (charInStr('=', BUFFER)) // atribuição
       assignment();
-   else if (strInStr(BUFFER, "index"))
-         arrayAccess();
-   // retorno de função
+   else if (strInStr(BUFFER, "index")) // acesso a array
+      arrayAccess();
+   else if(strInStr(BUFFER, "return")) // retorno de função
+      returnFunction();
+   else
+      error("Invalid instruction in if statement");
 
    readNewLine();
 
