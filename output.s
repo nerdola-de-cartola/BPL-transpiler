@@ -20,6 +20,11 @@ movl $0, -4(%rbp)
 
 cmpl $0, $10
 je .if1
+leaq -44(%rbp), %rax
+movq $5, %rcx
+imulq $4, %rcx
+addq %rax, %rcx
+movl $2, (%rcx)
 .if1:
 
 cmpl $0, %esi

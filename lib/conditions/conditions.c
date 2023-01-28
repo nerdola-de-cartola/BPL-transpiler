@@ -33,7 +33,8 @@ void ifStatement()
 
    if (charInStr('=', BUFFER)) // atribuição
       assignment();
-   // acesso a array
+   else if (strInStr(BUFFER, "index"))
+         arrayAccess();
    // retorno de função
 
    readNewLine();
