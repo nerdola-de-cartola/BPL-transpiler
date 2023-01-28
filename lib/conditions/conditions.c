@@ -51,18 +51,7 @@ void verifyIfStatement(char c1, char c2, int index)
    if (c2 != 'i')
       error("Invalid type in if statement");
 
-   if (c1 == 'v')
-   { // if vi1
-      if (index < 1 || index > 5)
-         error("Invalid type in if statement");
-   }
-   else if (c1 == 'p')
-   { // if pi1
-      if (index < 1 || index > 3)
-         error("Invalid type in if statement");
-   }
-   else
-   {
+   if(c1 != 'c' && c1 != 'v' && c1 != 'p')
       error("Invalid type in if statement");
-   }
+
 }
