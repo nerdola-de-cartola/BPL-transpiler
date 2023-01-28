@@ -7,7 +7,7 @@ void simpleAssignment(int index_destiny, int index_source, char type_destiny, ch
    Parameter *source_p = NULL;
    Register *tmp = NULL;
 
-   if(type_destiny == 'v') {
+   if(type_destiny == 'v') { // Atribuição para variável
 
       Variable *destiny = getVariable(index_destiny);
 
@@ -39,31 +39,31 @@ void simpleAssignment(int index_destiny, int index_source, char type_destiny, ch
       }
 
       return;
-   } else {
+   }
 
-      Parameter *destiny = getParameter(index_destiny);
 
-      switch (type_source)
-      {
-      case 'c':
-         fprintf(F_OUTPUT, "movl $%d, %%%s\n", index_source, destiny->reg->name32);
-         break;
-      
-      case 'v':
-         source_v = getVariable(index_source);
+   // Atribuição para parâmetro
+   Parameter *destiny = getParameter(index_destiny);
 
-         fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", source_v->stackPosition, destiny->reg->name32);
+   switch (type_source)
+   {
+   case 'c':
+      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index_source, destiny->reg->name32);
+      break;
+   
+   case 'v':
+      source_v = getVariable(index_source);
 
-         break;
+      fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", source_v->stackPosition, destiny->reg->name32);
 
-      case 'p':
-         source_p = getParameter(index_source);
+      break;
 
-         fprintf(F_OUTPUT, "movl %%%s, %%%s\n", source_p->reg->name32 , destiny->reg->name32);
+   case 'p':
+      source_p = getParameter(index_source);
 
-         break;
+      fprintf(F_OUTPUT, "movl %%%s, %%%s\n", source_p->reg->name32 , destiny->reg->name32);
 
-      }
+      break;
 
    }
 
