@@ -8,26 +8,28 @@ movq %rsp, %rbp
 # vi1: -4
 # va2: -44
 # pa1 -> %rdi | -56(%rbp)
-# pa2 -> %rsi | -64(%rbp)
+# pi2 -> %esi | -60(%rbp)
 subq $64, %rsp
 
-movl -4(%rbp), %eax
-addl $1, %eax
-movl %eax, -4(%rbp)
+movl $3, -4(%rbp)
 
+cmpl $0, -4(%rbp)
+je .if0
+movl $0, -4(%rbp)
+.if0:
+
+cmpl $0, $10
+je .if1
 leaq -44(%rbp), %rax
 movq $5, %rcx
 imulq $4, %rcx
 addq %rax, %rcx
 movl $2, (%rcx)
+.if1:
 
-
-leaq -44(%rbp), %rax
-movq $8, %rcx
-imulq $4, %rcx
-addq %rax, %rcx
-movl (%rcx), %ecx
-movl %ecx, -4(%rbp)
+cmpl $0, %esi
+je .if2
+.if2:
 
 leave
 ret
