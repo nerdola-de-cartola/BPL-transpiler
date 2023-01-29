@@ -45,6 +45,6 @@ Function *getFunction(int index);
 
 void printFunctionHeader();
 
-void printFunctionEnd();
+void functionEnd();
 
 #endif

@@ -7,7 +7,7 @@ const tests = [
     inputPath: "./array/t1.bpl",
     outputPath: "./array/t1.s",
     cFilePath: "./array/t1.c",
-    expectedExitCode: 0,
+    expectedExitCode: 2,
   },
   {
     inputPath: "./array/t2.bpl",
@@ -25,13 +25,13 @@ const tests = [
     inputPath: "./conditions/t1.bpl",
     outputPath: "./conditions/t1.s",
     cFilePath: "./conditions/t1.c",
-    expectedExitCode: 0,
+    expectedExitCode: -7,
   },
   {
     inputPath: "./functions/t1.bpl",
     outputPath: "./functions/t1.s",
     cFilePath: "./functions/t1.c",
-    expectedExitCode: 96,
+    expectedExitCode: 3,
   },
   {
     inputPath: "./functions/t2.bpl",

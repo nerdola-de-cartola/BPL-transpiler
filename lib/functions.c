@@ -84,7 +84,7 @@ void functionDefinition()
    }
 
    // leave ret
-   printFunctionEnd();
+   functionEnd();
 }
 
 void verifyCallFunction(int qtd, char type_destiny, int index_function, char category[3], char type[3]) {
@@ -207,6 +207,8 @@ void returnFunction() {
    
    }
 
+   fprintf(F_OUTPUT, "leave\nret\n");
+
    freeRegister(&rax);
 
 }
@@ -235,7 +237,7 @@ void printFunctionHeader()
    fprintf(F_OUTPUT, "movq %%rsp, %%rbp\n\n");
 }
 
-void printFunctionEnd()
+void functionEnd()
 {
    int i;
    Function *f = getFunction(CURRENT_FUNCTION_INDEX); 
@@ -243,5 +245,4 @@ void printFunctionEnd()
    for(i = 0; i < f->parameterCount; i++)
       freeRegister(&f->parameters[i].reg);
 
-   fprintf(F_OUTPUT, "leave\nret\n");
 }
