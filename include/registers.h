@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../type.h"
-#include "../common/common.h"
+#include "type.h"
+#include "common.h"
 
 #define MAX_REGISTER 16
 #define CALLER_SAVED 0

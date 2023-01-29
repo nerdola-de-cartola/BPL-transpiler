@@ -1,4 +1,4 @@
-#include "functions.h"
+#include "../include/functions.h"
 
 Function FUNCTIONS[MAX_FUNCTION];
 int CURRENT_FUNCTION_INDEX;

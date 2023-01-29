@@ -1,4 +1,4 @@
-#include "assignment.h"
+#include "../include/assignment.h"
 
 void simpleAssignment(int index_destiny, int index_source, char type_destiny, char type_source)
 {

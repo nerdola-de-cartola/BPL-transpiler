@@ -1,4 +1,4 @@
-#include "conditions.h"
+#include "../include/conditions.h"
 
 int IF_INDEX;
 

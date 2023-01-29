@@ -1,10 +1,10 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
-#include "../common/common.h"
-#include "../variables/variables.h"
-#include "../registers/registers.h"
-#include "../functions/functions.h"
+#include "common.h"
+#include "variables.h"
+#include "registers.h"
+#include "functions.h"
 
 void verifyArrayAccess(int r, char c1, char c2, char c3);
 

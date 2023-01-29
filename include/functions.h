@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../parameters/parameters.h"
+#include "parameters.h"
 
 typedef struct {
    int parameterCount;
@@ -13,12 +13,12 @@ typedef struct {
    bool valid;
 } Function;
 
-#include "../common/common.h"
-#include "../registers/registers.h"
-#include "../conditions/conditions.h"
-#include "../array/array.h"
-#include "../assignment/assignment.h"
-#include "../variables/variables.h"
+#include "common.h"
+#include "registers.h"
+#include "conditions.h"
+#include "array.h"
+#include "assignment.h"
+#include "variables.h"
 
 #define MAX_FUNCTION 100
 #define INT 0

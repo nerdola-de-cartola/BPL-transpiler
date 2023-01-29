@@ -1,4 +1,4 @@
-#include "parameters.h"
+#include "../include/parameters.h"
 
 void verifyParams(int order, char type1, char type2, char type3, int paramQtd)
 {

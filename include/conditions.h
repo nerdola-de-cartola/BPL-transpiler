@@ -3,9 +3,9 @@
 
 #include <string.h>
 
-#include "../common/common.h"
-#include "../variables/variables.h"
-#include "../assignment/assignment.h"
+#include "common.h"
+#include "variables.h"
+#include "assignment.h"
 
 extern int IF_INDEX;
 

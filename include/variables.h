@@ -1,8 +1,8 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
-#include "../common/common.h"
-#include "../functions/functions.h"
+#include "common.h"
+#include "functions.h"
 
 #define MAX_VARIABLE 5
 

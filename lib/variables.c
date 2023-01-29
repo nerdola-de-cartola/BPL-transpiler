@@ -1,4 +1,4 @@
-#include "variables.h"
+#include "../include/variables.h"
 
 Variable VARIABLES[MAX_VARIABLE];
 

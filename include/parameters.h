@@ -1,9 +1,9 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#include "../common/common.h"
-#include "../registers/registers.h"
-#include "../type.h"
+#include "common.h"
+#include "registers.h"
+#include "type.h"
 
 typedef struct {
    Type type;
@@ -11,7 +11,7 @@ typedef struct {
    int stackPosition;
 } Parameter;
 
-#include "../functions/functions.h"
+#include "functions.h"
 
 void verifyParams(int order, char type1, char type2, char type3, int paramQtd);
 

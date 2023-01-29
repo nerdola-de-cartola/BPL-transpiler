@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../include/common.h"
 
 FILE *F_SOURCE;
 FILE *F_OUTPUT;

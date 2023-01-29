@@ -1,10 +1,10 @@
 #ifndef ASSIGNMENT_H
 #define ASSIGNMENT_H
 
-#include "../registers/registers.h"
-#include "../variables/variables.h"
-#include "../parameters/parameters.h"
-#include "../common/common.h"
+#include "registers.h"
+#include "variables.h"
+#include "parameters.h"
+#include "common.h"
 
 #include <string.h>
 
