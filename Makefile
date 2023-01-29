@@ -3,6 +3,7 @@ CFLAGS = -Wall -Wextra -g3
 
 all: array.o assignment.o common.o conditions.o functions.o parameters.o registers.o variables.o bpl.o
 	$(CC) array.o assignment.o common.o conditions.o functions.o parameters.o registers.o variables.o bpl.o -o bpl.exe
+	cp bpl.exe tests/compiler
 
 array.o: lib/array.c
 	$(CC) lib/array.c -o $(@) -c $(CFLAGS)
