@@ -9,6 +9,8 @@ movq %rsp, %rbp
 # vi2: -8
 subq $16, %rsp
 
+movl -4(%rbp), %eax
+
 leave
 ret
 

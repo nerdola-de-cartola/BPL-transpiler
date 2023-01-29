@@ -11,6 +11,8 @@ movq %rsp, %rbp
 # vi2: -132
 subq $144, %rsp
 
+movl -4(%rbp), %eax
+
 leave
 ret
 

@@ -30,6 +30,8 @@ movq $10, %r9
 imulq $4, %r9
 addq %rcx, %r9
 
+movl -4(%rbp), %eax
+
 leave
 ret
 

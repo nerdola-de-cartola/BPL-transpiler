@@ -36,6 +36,8 @@ cltd
 idiv %ecx
 movl %eax, -4(%rbp)
 
+movl -4(%rbp), %eax
+
 leave
 ret
 

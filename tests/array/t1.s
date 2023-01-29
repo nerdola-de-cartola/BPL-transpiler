@@ -23,6 +23,8 @@ movq $8, %rdx
 imulq $4, %rdx
 addq %rcx, %rdx
 
+movl -4(%rbp), %eax
+
 leave
 ret
 
