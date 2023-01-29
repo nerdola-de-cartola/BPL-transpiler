@@ -1,9 +1,7 @@
 #include<stdio.h>
 
-void f1();
+int f1();
 
 int main() {    
-    f1();
-
-    return 0;
+    return f1();
 }
