@@ -36,4 +36,4 @@ clear:
 	rm -rf *.o
 
 run:
-	./bpl.exe tests/array/t2.bpl output.s
+	./bpl.exe tests/conditions/t1.bpl output.s
