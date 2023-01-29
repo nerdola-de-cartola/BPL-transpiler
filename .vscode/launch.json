@@ -9,9 +9,9 @@
          "name": "(gdb) Launch",
          "type": "cppdbg",
          "request": "launch",
-         "program": "${workspaceFolder}/${fileBasenameNoExtension}.exe",
+         "program": "${workspaceFolder}/bpl.exe",
          "args": [
-            "${workspaceFolder}/tests/local_variables/t1.bpl",
+            "${workspaceFolder}/tests/functions/t2.bpl",
             "${workspaceFolder}/output.s"
          ],
          "stopAtEntry": false,
