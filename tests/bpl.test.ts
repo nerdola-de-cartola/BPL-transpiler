@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { readFile } from "node:fs/promises";
+import { readFile, unlink } from "node:fs/promises";
 import { execa } from "execa";
 
 const tests = [
@@ -48,30 +48,38 @@ const tests = [
 test.each(tests)(
   "it generates the expected assembly output for: %s",
   async ({ inputPath, outputPath, cFilePath }) => {
-    // compilation test
-    console.log(`Testing ${inputPath}...`);
-    const expectedOutput = await readFile(outputPath, "utf-8");
-    const { exitCode: compilationExitCode } = await execa("./compiler", [
-      inputPath,
-      `${outputPath}.tmp.s`,
-    ]);
-    const compilerOutput = await readFile(`${outputPath}.tmp`, "utf-8");
-    expect(compilerOutput).toBe(expectedOutput);
-    expect(compilationExitCode).toBe(0);
+    try {
+      // compilation test
+      console.log(`Testing ${inputPath}...`);
+      const expectedOutput = await readFile(outputPath, "utf-8");
+      const { exitCode: compilationExitCode } = await execa("./compiler", [
+        inputPath,
+        `${outputPath}.tmp.s`,
+      ]);
+      const compilerOutput = await readFile(`${outputPath}.tmp.s`, "utf-8");
+      expect(compilerOutput).toBe(expectedOutput);
+      expect(compilationExitCode).toBe(0);
 
-    // execution test
-    const { exitCode: gccExitCode } = await execa("gcc", [
-      "-o",
-      `${outputPath}.exe`,
-      `${outputPath}.tmp.s`,
-      `${cFilePath}`,
-    ]);
-    expect(gccExitCode).toBe(0);
-    const { exitCode: executionExitCode } = await execa(`${outputPath}.exe`);
-    expect(executionExitCode).toBe(0);
-
-    // cleanup
-    // await execa("rm", [`${test.output}.tmp`]);
-    // await execa("rm", [`${test.output}.exe`]);
+      // execution test
+      const { exitCode: gccExitCode } = await execa("gcc", [
+        "-o",
+        `${outputPath}.exe`,
+        `${outputPath}.tmp.s`,
+        `${cFilePath}`,
+      ]);
+      expect(gccExitCode).toBe(0);
+      const { exitCode: executionExitCode } = await execa(`${outputPath}.exe`);
+      expect(executionExitCode).toBe(0);
+    } catch (error) {
+      // cleanup
+      throw error;
+    } finally {
+      try {
+        await unlink(`${outputPath}.tmp.s`);
+        await unlink(`${outputPath}.exe`);
+      } catch (error) {
+        console.log("error unlinking");
+      }
+    }
   }
 );
