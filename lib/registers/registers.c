@@ -5,10 +5,10 @@ Register REGISTERS[MAX_REGISTER];
 
 void registersInit()
 {
-   REGISTERS[0].free = true;
-   REGISTERS[0].type = CALLER_SAVED;
-   strcpy(REGISTERS[0].name32, "eax");
-   strcpy(REGISTERS[0].name64, "rax");
+   REGISTERS[15].free = true;
+   REGISTERS[15].type = CALLER_SAVED;
+   strcpy(REGISTERS[15].name32, "eax");
+   strcpy(REGISTERS[15].name64, "rax");
 
    REGISTERS[1].free = true;
    REGISTERS[1].type = CALLEE_SAVED;
@@ -80,10 +80,10 @@ void registersInit()
    strcpy(REGISTERS[14].name32, "r14d");
    strcpy(REGISTERS[14].name64, "r14");
 
-   REGISTERS[15].free = true;
-   REGISTERS[15].type = CALLEE_SAVED;
-   strcpy(REGISTERS[15].name32, "r15d");
-   strcpy(REGISTERS[15].name64, "r15");
+   REGISTERS[0].free = true;
+   REGISTERS[0].type = CALLEE_SAVED;
+   strcpy(REGISTERS[0].name32, "r15d");
+   strcpy(REGISTERS[0].name64, "r15");
 }
 
 
@@ -114,4 +114,24 @@ void freeRegister(Register **r)
 {
    (*r)->free = true;
    *r = NULL;
+}
+
+void registerName(int index, char name32[4], char name64[4]) {
+   switch (index)
+   {
+   case 1:
+      strcpy(name32, "edi");
+      strcpy(name64, "rdi");
+      break;
+
+   case 2:
+      strcpy(name32, "esi");
+      strcpy(name64, "rsi");
+      break;
+
+   case 3:
+      strcpy(name32, "edx");
+      strcpy(name64, "rdx");
+      break;
+   }
 }

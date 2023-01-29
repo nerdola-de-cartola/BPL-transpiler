@@ -10,7 +10,7 @@ void ifStatement()
 
    sscanf(BUFFER, "if %c%c%d", &c1, &c2, &index);
 
-   verifyIfStatement(c1, c2, index);
+   verifyIfStatement(c1, c2);
 
    if (c1 == 'v')
    { // variável local
@@ -51,7 +51,7 @@ void ifStatement()
 
 
 
-void verifyIfStatement(char c1, char c2, int index)
+void verifyIfStatement(char c1, char c2)
 {
 
    if (c2 != 'i')

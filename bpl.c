@@ -41,6 +41,7 @@ int main(int argc, char **argv)
       if (strInStr(BUFFER, "function"))
          functionDefinition();
 
+      fprintf(F_OUTPUT, "\n");
    }
 
    fclose(F_SOURCE);

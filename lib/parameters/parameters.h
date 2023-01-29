@@ -1,8 +1,6 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#pragma once
-
 #include "../common/common.h"
 #include "../registers/registers.h"
 #include "../type.h"
@@ -22,5 +20,11 @@ void printParam(Parameter *p, int index);
 int paramDefinition(int stackSize);
 
 Parameter *getParameter(int index);
+
+void saveParameters();
+
+void restoreParameters();
+
+void passParameters(int index_function, char category[3], char type[3], int index[3]);
 
 #endif

@@ -1,8 +1,6 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#pragma once
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -27,5 +25,7 @@ void registersInit();
 Register *getRegister(char *name64, int type);
 
 void freeRegister(Register **r);
+
+void registerName(int index, char name32[4], char name64[4]);
 
 #endif
