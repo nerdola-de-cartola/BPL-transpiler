@@ -4,65 +4,74 @@ import { execa } from "execa";
 
 const tests = [
   {
-    input: "./array/t1.bpl",
-    output: "./array/t1.s",
+    inputPath: "./array/t1.bpl",
+    outputPath: "./array/t1.s",
+    cFilePath: "./array/t1.c",
   },
   {
-    input: "./array/t2.bpl",
-    output: "./array/t2.s",
+    inputPath: "./array/t2.bpl",
+    outputPath: "./array/t2.s",
+    cFilePath: "./array/t2.c",
   },
   {
-    input: "./assignment/t1.bpl",
-    output: "./assignment/t1.s",
+    inputPath: "./assignment/t1.bpl",
+    outputPath: "./assignment/t1.s",
+    cFilePath: "./assignment/t1.c",
   },
   {
-    input: "./conditions/t1.bpl",
-    output: "./conditions/t1.s",
+    inputPath: "./conditions/t1.bpl",
+    outputPath: "./conditions/t1.s",
+    cFilePath: "./conditions/t1.c",
   },
   {
-    input: "./functions/t1.bpl",
-    output: "./functions/t1.s",
+    inputPath: "./functions/t1.bpl",
+    outputPath: "./functions/t1.s",
+    cFilePath: "./conditions/t1.c",
   },
   {
-    input: "./functions/t2.bpl",
-    output: "./functions/t2.s",
+    inputPath: "./functions/t2.bpl",
+    outputPath: "./functions/t2.s",
+    cFilePath: "./functions/t2.c",
   },
   {
-    input: "./variables/t1.bpl",
-    output: "./variables/t1.s",
+    inputPath: "./variables/t1.bpl",
+    outputPath: "./variables/t1.s",
+    cFilePath: "./variables/t1.c",
   },
   {
-    input: "./variables/t2.bpl",
-    output: "./variables/t2.s",
+    inputPath: "./variables/t2.bpl",
+    outputPath: "./variables/t2.s",
+    cFilePath: "./variables/t2.c",
   },
 ];
 
-test("it generates the expected assembly output", () => {
-  tests.forEach(async (test) => {
+test.each(tests)(
+  "it generates the expected assembly output for: %s",
+  async ({ inputPath, outputPath, cFilePath }) => {
     // compilation test
-    console.log(`Testing ${test.input}...`);
-    const input = await readFile(test.input, "utf-8");
-    const expectedOutput = await readFile(test.output, "utf-8");
-    const { exitCode: compilationExitCode } = await execa("compiler", [
-      input,
-      `${test.output}.tmp`,
+    console.log(`Testing ${inputPath}...`);
+    const expectedOutput = await readFile(outputPath, "utf-8");
+    const { exitCode: compilationExitCode } = await execa("./compiler", [
+      inputPath,
+      `${outputPath}.tmp.s`,
     ]);
-    const output = await readFile(`${test.output}.tmp`, "utf-8");
-    expect(output).toBe(expectedOutput);
+    const compilerOutput = await readFile(`${outputPath}.tmp`, "utf-8");
+    expect(compilerOutput).toBe(expectedOutput);
     expect(compilationExitCode).toBe(0);
 
     // execution test
     const { exitCode: gccExitCode } = await execa("gcc", [
       "-o",
-      `${test.output}.exe`,
-      `${test.output}.tmp`,
+      `${outputPath}.exe`,
+      `${outputPath}.tmp.s`,
+      `${cFilePath}`,
     ]);
     expect(gccExitCode).toBe(0);
-    const { exitCode: executionExitCode } = await execa(`${test.output}.exe`);
+    const { exitCode: executionExitCode } = await execa(`${outputPath}.exe`);
     expect(executionExitCode).toBe(0);
 
     // cleanup
-    await execa("rm", [`${test.output}.tmp`]);
-    await execa("rm", [`${test.output}.exe`]);
-  });
-});
+    // await execa("rm", [`${test.output}.tmp`]);
+    // await execa("rm", [`${test.output}.exe`]);
+  }
+);
