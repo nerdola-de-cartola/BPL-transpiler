@@ -7,47 +7,55 @@ const tests = [
     inputPath: "./array/t1.bpl",
     outputPath: "./array/t1.s",
     cFilePath: "./array/t1.c",
+    expectedExitCode: 0,
   },
   {
     inputPath: "./array/t2.bpl",
     outputPath: "./array/t2.s",
     cFilePath: "./array/t2.c",
+    expectedExitCode: 0,
   },
   {
     inputPath: "./assignment/t1.bpl",
     outputPath: "./assignment/t1.s",
     cFilePath: "./assignment/t1.c",
+    expectedExitCode: 0,
   },
   {
     inputPath: "./conditions/t1.bpl",
     outputPath: "./conditions/t1.s",
     cFilePath: "./conditions/t1.c",
+    expectedExitCode: 0,
   },
   {
     inputPath: "./functions/t1.bpl",
     outputPath: "./functions/t1.s",
-    cFilePath: "./conditions/t1.c",
+    cFilePath: "./functions/t1.c",
+    expectedExitCode: 96,
   },
   {
     inputPath: "./functions/t2.bpl",
     outputPath: "./functions/t2.s",
     cFilePath: "./functions/t2.c",
+    expectedExitCode: 5,
   },
   {
     inputPath: "./variables/t1.bpl",
     outputPath: "./variables/t1.s",
     cFilePath: "./variables/t1.c",
+    expectedExitCode: 113,
   },
   {
     inputPath: "./variables/t2.bpl",
     outputPath: "./variables/t2.s",
     cFilePath: "./variables/t2.c",
+    expectedExitCode: 76,
   },
 ];
 
 test.each(tests)(
   "it generates the expected assembly output for: %s",
-  async ({ inputPath, outputPath, cFilePath }) => {
+  async ({ inputPath, outputPath, cFilePath, expectedExitCode }) => {
     try {
       // compilation test
       console.log(`Testing ${inputPath}...`);
@@ -68,8 +76,10 @@ test.each(tests)(
         `${cFilePath}`,
       ]);
       expect(gccExitCode).toBe(0);
-      const { exitCode: executionExitCode } = await execa(`${outputPath}.exe`);
-      expect(executionExitCode).toBe(0);
+      const { exitCode: executionExitCode } = await execa(`${outputPath}.exe`, {
+        reject: false,
+      });
+      expect(executionExitCode).toBe(expectedExitCode);
     } catch (error) {
       // cleanup
       throw error;

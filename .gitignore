@@ -53,4 +53,7 @@ dkms.conf
 
 # Documents
 *.pdf
+
+# tests
 node_modules
+tests/compiler
