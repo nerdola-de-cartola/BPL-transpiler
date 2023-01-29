@@ -20,8 +20,8 @@ void ifStatement()
    else if (c1 == 'c')
    { // constante
       Register *r = getRegister(NULL, CALLER_SAVED);
-      fprintf(F_OUTPUT, "movl $0, %%%s\n", r->name32);
-      fprintf(F_OUTPUT, "cmpl %%%s, $%d\n", r->name32, index);
+      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index, r->name32);
+      fprintf(F_OUTPUT, "cmpl $0, %%%s\n", r->name32);
    }
    else
    { 

@@ -18,13 +18,14 @@ je .if0
 movl $0, -4(%rbp)
 .if0:
 
-cmpl $0, $10
+movl $10, %ecx
+cmpl $0, %ecx
 je .if1
-leaq -44(%rbp), %rcx
-movq $5, %rdx
-imulq $4, %rdx
-addq %rcx, %rdx
-movl $2, (%rdx)
+leaq -44(%rbp), %rdx
+movq $5, %r9
+imulq $4, %r9
+addq %rdx, %r9
+movl $2, (%r9)
 .if1:
 
 cmpl $0, %esi
