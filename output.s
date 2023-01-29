@@ -5,62 +5,38 @@ f1:
 pushq %rbp
 movq %rsp, %rbp
 
-# pi1 -> %edi | -4(%rbp)
-# pa2 -> %rsi | -16(%rbp)
-subq $16, %rsp
-
-movl %edi, %eax
-
-leave
-ret
-
-.globl f2
-f2:
-
-pushq %rbp
-movq %rsp, %rbp
-
 # vi1: -4
-# vi2: -8
-# va3: -128
-# pa1 -> %rdi | -136(%rbp)
-subq $144, %rsp
+# va2: -44
+# va3: -52
+# pi1 -> %edi | -56(%rbp)
+# pi2 -> %esi | -60(%rbp)
+# pa3 -> %rdx | -72(%rbp)
+subq $80, %rsp
 
-movl $1, -4(%rbp)
+leaq -44(%rbp), %rcx
+movq $5, %r9
+imulq $4, %r9
+addq %rcx, %r9
+movl $2, (%r9)
 
-# salvando registradores caller saved
-movq %rdi, -136(%rbp)
+leaq (%rdx), %rcx
+movq $5, %r9
+imulq $4, %r9
+addq %rcx, %r9
+movl (%r9), %edi
 
-# passando parâmetros para função
-movl -4(%rbp), %edi
-leaq -128(%rbp), %rsi
+leaq -44(%rbp), %rcx
+movq $10, %r9
+imulq $4, %r9
+addq %rcx, %r9
+movl %esi, (%r9)
 
-call f1
-
-# recuperando registradores caller saved
-# pa1 -> %rcx | -136(%rbp)
-movq -136(%rbp), %rcx
-
-# return
-movl %eax, -8(%rbp)
-
-# salvando registradores caller saved
-movq %rcx, -136(%rbp)
-
-# passando parâmetros para função
-movl $5, %edi
-leaq -136(%rbp), %rsi
-
-call f1
-
-# recuperando registradores caller saved
-# pa1 -> %rcx | -136(%rbp)
-movq -136(%rbp), %rcx
-
-# return
-movl %eax, -8(%rbp)
-
-movl -8(%rbp), %eax
+leaq -52(%rbp), %rcx
+movq $10, %r9
+imulq $4, %r9
+addq %rcx, %r9
+movl (%r9), %r8d
+movl %r8d, -4(%rbp)
 
 leave
 ret
