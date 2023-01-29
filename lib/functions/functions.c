@@ -67,6 +67,8 @@ void functionDefinition()
 
       if (strcmp(BUFFER, "end") == 0)
          break;
+      else if(strInStr(BUFFER, "call"))
+         callFunction();
       else if (charInStr('=', BUFFER))
          assignment(&function);
       else if (strInStr(BUFFER, "index"))
@@ -84,6 +86,88 @@ void functionDefinition()
    // leave ret
    printFunctionEnd();
 }
+
+void verifyCallFunction(int qtd, char type_destiny, int index_function, char category[3], char type[3]) {
+
+   if(qtd != 3 && qtd != 6 && qtd != 9 && qtd != 12)
+      error("Invalid function call");
+
+   if(type_destiny != 'v' && type_destiny != 'p')
+      error("Invalid destiny in function call");
+
+   int i;
+   const int qtd_params = (qtd - 3) / 3;
+
+   Function *f = getFunction(index_function);
+
+   if(qtd_params != f->parameterCount)
+      error("Invalid parameters amount");
+
+   for(i = 0; i < qtd_params; i++) {
+
+      if(category[i] != 'c' && category[i] != 'v' && category[i] != 'p')
+         error("Invalid category in function call");
+
+      if(category[i] == 'c' && type[i] != 'i')
+         error("Invalid const type in function call");
+
+      if(type[i] != 'i' && type[i] != 'a')
+         error("Invalid type in function call");
+
+      if(f->parameters[i].type == INT && type[i] != 'i')
+         error("Incompatible parameter");
+
+      if(f->parameters[i].type == VET && (type[i] != 'a' || category[i] == 'c'))
+         error("Incompatible parameter");
+
+   }
+
+}
+
+void callFunction() {
+
+   char type_destiny = '\0';
+   int index_destiny, index_function;
+
+   char category[3];
+   char type[3];
+   int index[3];
+
+   int r = sscanf(
+      BUFFER,
+      "%ci%d = call f%d %c%c%d %c%c%d %c%c%d",
+      &type_destiny,
+      &index_destiny,
+      &index_function,
+      &category[0],
+      &type[0],
+      &index[0],
+      &category[1],
+      &type[1],
+      &index[1],
+      &category[2],
+      &type[2],
+      &index[2]
+   );
+
+   verifyCallFunction(r, type_destiny, index_function, category, type);
+
+   saveParameters();
+   fprintf(F_OUTPUT, "\n");
+
+   passParameters(index_function, category, type, index);
+   fprintf(F_OUTPUT, "\n");
+
+   fprintf(F_OUTPUT, "call f%d\n\n", index_function);
+
+   restoreParameters();
+   fprintf(F_OUTPUT, "\n");
+
+   assignmentFromReturn(type_destiny, index_destiny);
+
+}
+
+
 
 void verifyReturn(char type) {
 
@@ -122,6 +206,8 @@ void returnFunction() {
       break;
    
    }
+
+   freeRegister(&rax);
 
 }
  

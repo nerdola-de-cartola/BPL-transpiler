@@ -6,8 +6,6 @@
 #include "../registers/registers.h"
 #include "../functions/functions.h"
 
-#pragma once
-
 void verifyArrayAccess(int r, char c1, char c2, char c3);
 
 void arrayAccess();

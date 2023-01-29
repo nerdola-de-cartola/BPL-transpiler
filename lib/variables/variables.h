@@ -1,10 +1,8 @@
-#include "../common/common.h"
-#include "../functions/functions.h"
-
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
-#pragma once
+#include "../common/common.h"
+#include "../functions/functions.h"
 
 #define MAX_VARIABLE 5
 

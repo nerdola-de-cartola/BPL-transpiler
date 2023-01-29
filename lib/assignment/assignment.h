@@ -6,8 +6,6 @@
 #include "../parameters/parameters.h"
 #include "../common/common.h"
 
-#pragma once
-
 #include <string.h>
 
 void simpleAssignment(int index_destiny, int index_source, char type_destiny, char type_source);
@@ -28,5 +26,7 @@ Register *operation(char op, char type1, int index1, char type2, int index2);
 Register *divi(char type1, int index1, char type2, int index2);
 
 void setOperation(char op, char *operation);
+
+void assignmentFromReturn(char type, int index);
 
 #endif

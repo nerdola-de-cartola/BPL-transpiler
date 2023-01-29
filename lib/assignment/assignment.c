@@ -156,7 +156,6 @@ void assignment()
 
 }
 
-
 Register *operation(char op, char type1, int index1, char type2, int index2)
 {
    Register *r = NULL;
@@ -282,4 +281,24 @@ void setOperation(char op, char *operation) {
       break;
    
    }
+}
+
+void assignmentFromReturn(char type, int index) {
+
+   Variable *v = NULL;
+   Parameter *p = NULL;
+   Register *rax = getRegister("rax", CALLER_SAVED); 
+
+   fprintf(F_OUTPUT, "# return\n");
+
+   if(type == 'v') {
+      v = getVariable(index);
+      fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", rax->name32, v->stackPosition);
+   } else {
+      p = getParameter(index);
+      fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", rax->name32, p->stackPosition);
+   }
+
+   freeRegister(&rax);
+
 }

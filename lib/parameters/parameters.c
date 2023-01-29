@@ -68,3 +68,96 @@ Parameter *getParameter(int index) {
    return &f->parameters[index - 1];
 }
 
+void saveParameters() {
+
+   Function *f = getFunction(CURRENT_FUNCTION_INDEX);
+   Parameter *p = NULL;
+   int i;
+
+   if(f->parameterCount > 0)
+      fprintf(F_OUTPUT, "# salvando registradores caller saved\n");
+
+   for(i = 1; i <= f->parameterCount; i++) {
+
+      p = getParameter(i);
+
+      if(p->type == INT)
+         fprintf(F_OUTPUT, "movl %%%s, -%d(%%rbp)\n", p->reg->name32, p->stackPosition);
+      else
+         fprintf(F_OUTPUT, "movq %%%s, -%d(%%rbp)\n", p->reg->name64, p->stackPosition);
+
+      freeRegister(&p->reg);
+
+   }
+
+}
+
+void restoreParameters() {
+   Function *f = getFunction(CURRENT_FUNCTION_INDEX);
+   Parameter *p = NULL;
+   int i;
+
+   if(f->parameterCount > 0)
+      fprintf(F_OUTPUT, "# recuperando registradores caller saved\n");
+
+   for(i = 1; i <= f->parameterCount; i++) {
+
+      p = getParameter(i);
+      p->reg = getRegister(NULL, CALLER_SAVED);
+
+      printParam(p, i);
+
+      if(p->type == INT) {
+         fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", p->stackPosition, p->reg->name32);
+      } else {
+         fprintf(F_OUTPUT, "movq -%d(%%rbp), %%%s\n", p->stackPosition, p->reg->name64);
+      }
+
+   }
+
+}
+
+void passParameters(int index_function, char category[3], char type[3], int index[3]) {
+
+   Function *f = getFunction(index_function);
+   Variable *v = NULL;
+   Parameter *p = NULL;
+   char reg_name32[4];
+   char reg_name64[4];
+   int i;
+
+   if(f->parameterCount > 0)
+      fprintf(F_OUTPUT, "# passando parâmetros para função\n");
+
+   for(i = 0; i < f->parameterCount; i++) {
+
+      registerName(i+1, reg_name32, reg_name64);
+
+      if(category[i] == 'c') {
+         fprintf(F_OUTPUT, "movl $%d, %%%s\n", index[i], reg_name32);
+      }
+      else if(category[i] == 'v') {
+
+         v = getVariable(index[i]);
+
+         if(type[i] == 'i')
+            fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", v->stackPosition, reg_name32);
+         else
+            fprintf(F_OUTPUT, "leaq -%d(%%rbp), %%%s\n", v->stackPosition, reg_name64);
+
+      }
+      else {
+
+         p = getParameter(index[i]);
+
+         if(type[i] == 'i')
+            fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", p->stackPosition, reg_name32);
+         else
+            fprintf(F_OUTPUT, "leaq -%d(%%rbp), %%%s\n", p->stackPosition, reg_name64);
+
+      }
+
+   }
+
+
+}
