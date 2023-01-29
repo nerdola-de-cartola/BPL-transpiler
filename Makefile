@@ -2,34 +2,37 @@ CC=clang
 CFLAGS = -Wall -Wextra -g3
 
 all: array.o assignment.o common.o conditions.o functions.o parameters.o registers.o variables.o bpl.o
-	$(CC) array.o assignment.o common.o conditions.o functions.o parameters.o registers.o variables.o bpl.o -o bpl.exe $(CFLAGS)
+	$(CC) array.o assignment.o common.o conditions.o functions.o parameters.o registers.o variables.o bpl.o -o bpl.exe
 
-array.o:
+array.o: lib/array.c
 	$(CC) lib/array.c -o $(@) -c $(CFLAGS)
 
-assignment.o:
+assignment.o: lib/assignment.c
 	$(CC) lib/assignment.c -o $(@) -c $(CFLAGS)
 
-common.o:
+common.o: lib/common.c
 	$(CC) lib/common.c -o $(@) -c $(CFLAGS)
 
-conditions.o:
+conditions.o: lib/conditions.c
 	$(CC) lib/conditions.c -o $(@) -c $(CFLAGS)
 
-functions.o:
+functions.o: lib/functions.c
 	$(CC) lib/functions.c -o $(@) -c $(CFLAGS)
 
-parameters.o:
+parameters.o: lib/parameters.c
 	$(CC) lib/parameters.c -o $(@) -c $(CFLAGS)
 
-registers.o:
+registers.o: lib/registers.c
 	$(CC) lib/registers.c -o $(@) -c $(CFLAGS)
 
-variables.o:
+variables.o: lib/variables.c
 	$(CC) lib/variables.c -o $(@) -c $(CFLAGS)
 
-bpl.o:
+bpl.o: bpl.c
 	$(CC) bpl.c -o $(@) -c $(CFLAGS)
 
 clear:
 	rm -rf *.o
+
+run:
+	./bpl.exe tests/array/t2.bpl output.s
