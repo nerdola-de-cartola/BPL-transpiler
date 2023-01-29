@@ -4,7 +4,7 @@
 #pragma once
 
 #include "array.h"
-#include "aassignment.h"
+#include "assignment.h"
 #include "common.h"
 #include "conditions.h"
 #include "functions.h"
