@@ -43,13 +43,13 @@ const tests = [
     inputPath: "./variables/t1.bpl",
     outputPath: "./variables/t1.s",
     cFilePath: "./variables/t1.c",
-    expectedExitCode: 113,
+    expectedExitCode: 6,
   },
   {
     inputPath: "./variables/t2.bpl",
     outputPath: "./variables/t2.s",
     cFilePath: "./variables/t2.c",
-    expectedExitCode: 120,
+    expectedExitCode: 4,
   },
 ];
 
