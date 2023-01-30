@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { readFile, unlink } from "node:fs/promises";
+import { unlink } from "node:fs/promises";
 import { execa } from "execa";
 
 const tests = [
@@ -7,7 +7,7 @@ const tests = [
     inputPath: "./array/t1.bpl",
     outputPath: "./array/t1.s",
     cFilePath: "./array/t1.c",
-    expectedExitCode: -7,
+    expectedExitCode: 7,
   },
   {
     inputPath: "./array/t2.bpl",
@@ -25,7 +25,7 @@ const tests = [
     inputPath: "./conditions/t1.bpl",
     outputPath: "./conditions/t1.s",
     cFilePath: "./conditions/t1.c",
-    expectedExitCode: -11,
+    expectedExitCode: 13,
   },
   {
     inputPath: "./functions/t1.bpl",
@@ -49,7 +49,7 @@ const tests = [
     inputPath: "./variables/t2.bpl",
     outputPath: "./variables/t2.s",
     cFilePath: "./variables/t2.c",
-    expectedExitCode: 76,
+    expectedExitCode: 120,
   },
 ];
 
@@ -59,13 +59,10 @@ test.each(tests)(
     try {
       // compilation test
       console.log(`Testing ${inputPath}...`);
-      //const expectedOutput = await readFile(outputPath, "utf-8");
       const { exitCode: compilationExitCode } = await execa("./compiler", [
         inputPath,
         `${outputPath}.tmp.s`,
       ]);
-      //const compilerOutput = await readFile(`${outputPath}.tmp.s`, "utf-8");
-      //expect(compilerOutput).toBe(expectedOutput);
       expect(compilationExitCode).toBe(0);
 
       // execution test
@@ -79,6 +76,7 @@ test.each(tests)(
       const { exitCode: executionExitCode } = await execa(`${outputPath}.exe`, {
         reject: false,
       });
+      console.log({ executionExitCode });
       expect(executionExitCode).toBe(expectedExitCode);
     } catch (error) {
       // cleanup

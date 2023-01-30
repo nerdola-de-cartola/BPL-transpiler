@@ -16,7 +16,7 @@ set va2 index ci5 with ci2
 endif
 
 if pi2                  
-return ci-10
+return ci10
 endif
 
 return vi1
