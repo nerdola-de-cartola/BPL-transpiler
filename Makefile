@@ -2,7 +2,7 @@ CC=clang
 CFLAGS = -Wall -Wextra -g3
 
 all: bin/array.o bin/assignment.o bin/common.o bin/conditions.o bin/functions.o bin/parameters.o bin/registers.o bin/variables.o bin/bpl.o
-	$(CC) bin/array.o bin/assignment.o bin/common.o bin/conditions.o bin/functions.o bin/parameters.o bin/registers.o bin/variables.o bin/bpl.o -o bpl.exe
+	$(CC) bin/array.o bin/assignment.o bin/common.o bin/conditions.o bin/functions.o bin/parameters.o bin/registers.o bin/variables.o bin/bpl.o -o bpl.exe -no-pie
 	cp bpl.exe tests/compiler
 
 bin/array.o: lib/array.c

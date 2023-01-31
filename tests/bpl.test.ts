@@ -71,6 +71,7 @@ test.each(tests)(
         `${outputPath}.exe`,
         `${outputPath}.tmp.s`,
         `${cFilePath}`,
+        `-no-pie`
       ]);
       expect(gccExitCode).toBe(0);
       const { exitCode: executionExitCode } = await execa(`${outputPath}.exe`, {
