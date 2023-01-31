@@ -25,6 +25,6 @@ void saveParameters();
 
 void restoreParameters();
 
-void passParameters(int index_function, char category[3], char type[3], int index[3]);
+void passParameters(int qtd, char category[3], char type[3], int index[3]);
 
 #endif

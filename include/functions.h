@@ -10,7 +10,7 @@ typedef struct {
    int parameterCount;
    Parameter parameters[3];
    int variableCount;
-   bool valid;
+
 } Function;
 
 #include "common.h"
@@ -31,7 +31,7 @@ void functionsInit();
 
 void functionDefinition();
 
-void verifyCallFunction(int qtd, char type_destiny, int index_function, char category[3], char type[3]);
+int verifyCallFunction(int qtd, char type_destiny, char category[3], char type[3]);
 
 void callFunction();
 
@@ -45,6 +45,6 @@ Function *getFunction(int index);
 
 void printFunctionHeader();
 
-void printFunctionEnd();
+void functionEnd();
 
 #endif

@@ -9,7 +9,6 @@ void functionsInit() {
 
    for(i = 0; i < MAX_FUNCTION; i++) {
       FUNCTIONS[i].parameterCount = 0;
-      FUNCTIONS[i].valid = false;
       FUNCTIONS[i].variableCount = 0;
    }
 
@@ -25,7 +24,6 @@ void functionDefinition()
                             &type2,
                             &type3);
 
-   FUNCTIONS[CURRENT_FUNCTION_INDEX - 1].valid = true;
    Function *function = getFunction(CURRENT_FUNCTION_INDEX);
    function->parameterCount = paramLenght - 1;
 
@@ -84,10 +82,10 @@ void functionDefinition()
    }
 
    // leave ret
-   printFunctionEnd();
+   functionEnd();
 }
 
-void verifyCallFunction(int qtd, char type_destiny, int index_function, char category[3], char type[3]) {
+int verifyCallFunction(int qtd, char type_destiny, char category[3], char type[3]) {
 
    if(qtd != 3 && qtd != 6 && qtd != 9 && qtd != 12)
       error("Invalid function call");
@@ -97,11 +95,6 @@ void verifyCallFunction(int qtd, char type_destiny, int index_function, char cat
 
    int i;
    const int qtd_params = (qtd - 3) / 3;
-
-   Function *f = getFunction(index_function);
-
-   if(qtd_params != f->parameterCount)
-      error("Invalid parameters amount");
 
    for(i = 0; i < qtd_params; i++) {
 
@@ -114,13 +107,9 @@ void verifyCallFunction(int qtd, char type_destiny, int index_function, char cat
       if(type[i] != 'i' && type[i] != 'a')
          error("Invalid type in function call");
 
-      if(f->parameters[i].type == INT && type[i] != 'i')
-         error("Incompatible parameter");
-
-      if(f->parameters[i].type == VET && (type[i] != 'a' || category[i] == 'c'))
-         error("Incompatible parameter");
-
    }
+
+   return qtd_params;
 
 }
 
@@ -150,12 +139,12 @@ void callFunction() {
       &index[2]
    );
 
-   verifyCallFunction(r, type_destiny, index_function, category, type);
+   int qtd_params = verifyCallFunction(r, type_destiny, category, type);
 
    saveParameters();
    fprintf(F_OUTPUT, "\n");
 
-   passParameters(index_function, category, type, index);
+   passParameters(qtd_params, category, type, index);
    fprintf(F_OUTPUT, "\n");
 
    fprintf(F_OUTPUT, "call f%d\n\n", index_function);
@@ -207,6 +196,8 @@ void returnFunction() {
    
    }
 
+   fprintf(F_OUTPUT, "leave\nret\n");
+
    freeRegister(&rax);
 
 }
@@ -221,7 +212,7 @@ void subq(int lastStackPos)
 
 Function *getFunction(int index) {
 
-   if(index < 1 || index > MAX_FUNCTION || !FUNCTIONS[index - 1].valid)
+   if(index < 1 || index > MAX_FUNCTION)
       error("Invalid function index");
 
    return &FUNCTIONS[index - 1];
@@ -235,7 +226,7 @@ void printFunctionHeader()
    fprintf(F_OUTPUT, "movq %%rsp, %%rbp\n\n");
 }
 
-void printFunctionEnd()
+void functionEnd()
 {
    int i;
    Function *f = getFunction(CURRENT_FUNCTION_INDEX); 
@@ -243,5 +234,4 @@ void printFunctionEnd()
    for(i = 0; i < f->parameterCount; i++)
       freeRegister(&f->parameters[i].reg);
 
-   fprintf(F_OUTPUT, "leave\nret\n");
 }

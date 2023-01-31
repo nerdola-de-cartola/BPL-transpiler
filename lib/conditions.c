@@ -19,7 +19,9 @@ void ifStatement()
    }
    else if (c1 == 'c')
    { // constante
-      fprintf(F_OUTPUT, "cmpl $0, $%d\n", index);
+      Register *r = getRegister(NULL, CALLER_SAVED);
+      fprintf(F_OUTPUT, "movl $%d, %%%s\n", index, r->name32);
+      fprintf(F_OUTPUT, "cmpl $0, %%%s\n", r->name32);
    }
    else
    { 

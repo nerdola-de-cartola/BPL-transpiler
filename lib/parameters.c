@@ -117,19 +117,18 @@ void restoreParameters() {
 
 }
 
-void passParameters(int index_function, char category[3], char type[3], int index[3]) {
+void passParameters(int qtd, char category[3], char type[3], int index[3]) {
 
-   Function *f = getFunction(index_function);
    Variable *v = NULL;
    Parameter *p = NULL;
    char reg_name32[4];
    char reg_name64[4];
    int i;
 
-   if(f->parameterCount > 0)
+   if(qtd > 0)
       fprintf(F_OUTPUT, "# passando parâmetros para função\n");
 
-   for(i = 0; i < f->parameterCount; i++) {
+   for(i = 0; i < qtd; i++) {
 
       registerName(i+1, reg_name32, reg_name64);
 
@@ -153,7 +152,7 @@ void passParameters(int index_function, char category[3], char type[3], int inde
          if(type[i] == 'i')
             fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", p->stackPosition, reg_name32);
          else
-            fprintf(F_OUTPUT, "leaq -%d(%%rbp), %%%s\n", p->stackPosition, reg_name64);
+            fprintf(F_OUTPUT, "movq -%d(%%rbp), %%%s\n", p->stackPosition, reg_name64);
 
       }
 

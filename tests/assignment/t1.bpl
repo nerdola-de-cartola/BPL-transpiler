@@ -1,4 +1,4 @@
-function f1 pi1 pi2 pi3
+function f1 pi1
 
 def
 var vi1
@@ -6,12 +6,12 @@ var vi2
 var vi3
 enddef
 
-vi1 = ci1                            # vi1 = 1
-vi2 = vi1                            # vi2 = vi1
-vi1 = pi1 + vi2                      # vi1 = pi1 + vi2
-vi2 = vi1 * ci-5                     # vi2 = vi1 * -5
-vi1 = vi1 - pi1                      # vi1 = pi1 - vi2
-vi1 = pi1 / vi2                      # vi1 = pi1 + vi2
+vi1 = ci4
+vi2 = vi1 + ci10
+vi3 = vi2 - vi1
+vi3 = vi3 / ci2
+vi2 = vi3 * pi1
 
+return vi2
 
 end

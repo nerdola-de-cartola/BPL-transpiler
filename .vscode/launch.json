@@ -11,7 +11,7 @@
          "request": "launch",
          "program": "${workspaceFolder}/bpl.exe",
          "args": [
-            "${workspaceFolder}/tests/functions/t2.bpl",
+            "${workspaceFolder}/tests/functions/t1.bpl",
             "${workspaceFolder}/output.s"
          ],
          "stopAtEntry": false,

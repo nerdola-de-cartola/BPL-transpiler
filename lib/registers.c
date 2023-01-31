@@ -48,7 +48,7 @@ void registersInit()
    REGISTERS[8].free = true;
    REGISTERS[8].type = CALLER_SAVED;
    strcpy(REGISTERS[8].name32, "r8d");
-   strcpy(REGISTERS[8].name64, "r9");
+   strcpy(REGISTERS[8].name64, "r8");
 
    REGISTERS[9].free = true;
    REGISTERS[9].type = CALLER_SAVED;
