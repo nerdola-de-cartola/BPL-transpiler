@@ -7,7 +7,17 @@
          "args": [
             "-fdiagnostics-color=always",
             "-g",
-            "${file}",
+            "./bpl.o",
+            "./lib/array/array.o",
+            "./lib/assignment/assignment.o",
+            "./lib/common/common.o",
+            "./lib/conditions/conditions.o",
+            "./lib/functions/functions.o",
+            "./lib/parameters/parameters.o",
+            "./lib/registers/registers.o",
+            "./lib/variables/variables.o",
+            "-Wall",
+            "-Wextra",
             "-o",
             "${fileDirname}/${fileBasenameNoExtension}.exe"
          ],
