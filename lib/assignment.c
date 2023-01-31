@@ -227,10 +227,12 @@ Register *divi(char type1, int index1, char type2, int index2)
    case 'v':
       v = getVariable(index1);
       fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", v->stackPosition, rax->name32);
+      break;
 
    case 'p':
       p = getParameter(index1);
       fprintf(F_OUTPUT, "movl %%%s, %%%s\n", p->reg->name32, rax->name32);
+      break;
 
    }
 
