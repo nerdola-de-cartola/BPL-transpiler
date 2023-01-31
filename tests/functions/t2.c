@@ -1,11 +1,9 @@
 #include<stdio.h>
 
-int f1(int p1, int *p2);
 int f2(int *p1);
 
 int main() {
-    int a[10];
-    int b[10];
+    int a[5] = {2, 3, 5, 7, 11}; // sum = 28
 
-    return f2(b);
+    return f2(a);
 }

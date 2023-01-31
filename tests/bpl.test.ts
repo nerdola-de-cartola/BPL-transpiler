@@ -37,7 +37,7 @@ const tests = [
     inputPath: "./functions/t2.bpl",
     outputPath: "./functions/t2.s",
     cFilePath: "./functions/t2.c",
-    expectedExitCode: 5,
+    expectedExitCode: 43,
   },
   {
     inputPath: "./variables/t1.bpl",

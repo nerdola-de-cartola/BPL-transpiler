@@ -16,7 +16,7 @@ movq %rsi, -16(%rbp)
 
 # passando parâmetros para função
 movl -8(%rbp), %edi
-leaq -16(%rbp), %rsi
+movq -16(%rbp), %rsi
 
 call f2
 

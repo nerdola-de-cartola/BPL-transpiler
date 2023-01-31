@@ -152,7 +152,7 @@ void passParameters(int qtd, char category[3], char type[3], int index[3]) {
          if(type[i] == 'i')
             fprintf(F_OUTPUT, "movl -%d(%%rbp), %%%s\n", p->stackPosition, reg_name32);
          else
-            fprintf(F_OUTPUT, "leaq -%d(%%rbp), %%%s\n", p->stackPosition, reg_name64);
+            fprintf(F_OUTPUT, "movq -%d(%%rbp), %%%s\n", p->stackPosition, reg_name64);
 
       }
 
