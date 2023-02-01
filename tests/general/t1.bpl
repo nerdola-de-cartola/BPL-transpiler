@@ -4,15 +4,15 @@ def
 var vi1
 enddef
 
-vi1 = ci0
-
 if pi1
 vi1 = call f2 pi2 pa3
 endif
 
-vi1 = vi1 * pi1
-
+if pi1
 return vi1
+endif
+
+return pi2
 
 end
 
@@ -23,12 +23,13 @@ var vi1
 var vi2
 enddef
 
+vi1 = pi1
+
 get pa1 index ci0 to vi2
-vi1 = vi2
+vi1 = vi1 + vi2
 
 get pa1 index ci1 to vi2
 vi1 = vi1 + vi2
-
 
 get pa1 index ci2 to vi2
 vi1 = vi1 + vi2
