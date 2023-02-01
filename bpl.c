@@ -7,6 +7,7 @@
 int main(int argc, char **argv)
 {
 
+   // Verifica os argumentos passados
    if (argc != 3)
    {
       printf("Quantidade de argumentos inválida\n");
@@ -14,6 +15,7 @@ int main(int argc, char **argv)
       return 0;
    }
 
+   // Abre o arquivo ´de entrada (código fonte em bpl)
    F_SOURCE = fopen(argv[1], "rt");
    if (F_SOURCE == NULL)
    {
@@ -21,6 +23,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
+   // Abre o arquivo ´de saída (código fonte em assembly)
    F_OUTPUT = fopen(argv[2], "wt");
    if (F_SOURCE == NULL)
    {
@@ -28,6 +31,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
+   // Inicializa as variáveis globais
    LINE_COUNT = 0;
    IF_INDEX = 0;
    registersInit();
@@ -35,6 +39,7 @@ int main(int argc, char **argv)
 
    beginFile();
 
+   // Lê as definições de funções
    while (readNewLine() != NULL)
    {
 
@@ -44,6 +49,7 @@ int main(int argc, char **argv)
       fprintf(F_OUTPUT, "\n");
    }
 
+   // Fecha os arquivos de entrada e saída
    fclose(F_SOURCE);
    fclose(F_OUTPUT);
 
