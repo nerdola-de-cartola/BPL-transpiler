@@ -6,9 +6,8 @@ int main(void) {
 
    int a[3] = {13, 22, 42};
 
-   printf("%d\n", f1(2, 5, a));
-   printf("%d\n", f1(0, 10, a));
+   // printf("%d\n", f1(2, 5, a));
+   // printf("%d\n", f1(0, 10, a));
 
-   //     return 82     return 10
-   return 0;
+   return f1(2, 5, a) + f1(0, 10, a);
 }

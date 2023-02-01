@@ -25,13 +25,13 @@ enddef
 
 vi1 = pi1
 
-get pa1 index ci0 to vi2
+get pa2 index ci0 to vi2
 vi1 = vi1 + vi2
 
-get pa1 index ci1 to vi2
+get pa2 index ci1 to vi2
 vi1 = vi1 + vi2
 
-get pa1 index ci2 to vi2
+get pa2 index ci2 to vi2
 vi1 = vi1 + vi2
 
 return vi1
