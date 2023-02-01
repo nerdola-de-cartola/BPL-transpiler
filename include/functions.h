@@ -67,6 +67,12 @@ void returnFunction();
 */
 void subq(int lastStackPos);
 
+/**
+ * @brief Função para acessar os dados de uma determinada função
+ * 
+ * @param index Índice da função desejada (1-based)
+ * @return Function * Um ponteiro para a função desejada
+ */
 Function *getFunction(int index);
 
 /**

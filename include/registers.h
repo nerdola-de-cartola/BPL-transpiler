@@ -35,6 +35,18 @@ Register *getRegister(char *name64, int type);
  */
 void freeRegister(Register **r);
 
+/**
+ * @brief Função para descobrir o nomo do correto do
+ * registrador de um parâmetro.
+ * exemplo
+ * 1º parâmetro = %rdi
+ * 2º parâmetro = %rsi
+ * 3º parâmetro = %rdx
+ * 
+ * @param index Índice do parâmetro desejado
+ * @param name32 Nome do registrador de 32 bits
+ * @param name64 Nome do registrador de 64 bits
+ */
 void registerName(int index, char name32[4], char name64[4]);
 
 #endif

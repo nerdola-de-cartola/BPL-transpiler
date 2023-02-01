@@ -4,13 +4,6 @@
 // Acesso a Array - Início
 //==============================================================================
 
-
-/// @brief Verifica os casos de erro no arquivo bpl
-/// @param r -> r
-/// @param c1 -> parORvet
-/// @param c2 -> parORvarORconst
-/// @param c3 -> filler
-/// @return void
 void verifyArrayAccess(int r, char c1, char c2, char c3)
 {
    if (r != 6)
@@ -30,9 +23,6 @@ void verifyArrayAccess(int r, char c1, char c2, char c3)
 }
 
 
-/// @brief Realiza o processo de ler o comando Acesso a Array e realiza as operações gerais (main)
-/// @param 
-/// @return void
 void arrayAccess()
 {
    int r;
@@ -95,11 +85,6 @@ void arrayAccess()
 }
 
 
-/// @brief Realiza a parte final do Acesso ao Array em caso de comando "get"
-/// @param r -> r2
-/// @param type -> parORvarORconst
-/// @param index -> identifier2
-/// @return void
 void arrayAccessGet(Register *r, char type, int index)
 {
    if (type == 'v') // Tipo Variável (int)
@@ -121,11 +106,6 @@ void arrayAccessGet(Register *r, char type, int index)
 }
 
 
-/// @brief Realiza a parte final do Acesso ao Array em caso de comando "get"
-/// @param r -> r2
-/// @param type -> parORvarORconst
-/// @param index -> identifier2
-/// @return void
 void arrayAccessSet(Register *r, char type, int index)
 {
    if (type == 'v') // Tipo Variável (int)

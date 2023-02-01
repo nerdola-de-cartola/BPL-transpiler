@@ -1,8 +1,6 @@
 #ifndef BPL_H
 #define BPL_H
 
-#pragma once
-
 #include "array.h"
 #include "assignment.h"
 #include "common.h"

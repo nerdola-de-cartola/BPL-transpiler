@@ -13,12 +13,42 @@ typedef struct {
 
 #include "functions.h"
 
+/**
+ * @brief Verifica os parâmetros para criação de uma função
+ * 
+ * @param order Índice da função
+ * @param type1 Tipo do primeiro parâmetro
+ * @param type2 Tipo do segundo parâmetro
+ * @param type3 Tipo do terceiro parâmetro
+ * @param paramQtd Quantidade de parâmetros lido (sscanf)
+ */
 void verifyParams(int order, char type1, char type2, char type3, int paramQtd);
 
+/**
+ * @brief Imprime comentários no código assembly para mostrar o registrador
+ * e a posição na pilha onde o parâmetro vai ser guardado
+ * 
+ * @param p Ponteiro para o parâmetro
+ * @param index Índice do parâmetro (1-based)
+ */
 void printParam(Parameter *p, int index);
 
+/**
+ * @brief Separa espaços na pilha para salvar cada um dos parâmetros,
+ * apesar desse espaço ser separado previamente ele será utilizado 
+ * somente se necessário
+ * 
+ * @param stackSize Tamanho atual da pilha 
+ * @return int Novo tamanho da pilha após inserir os parâmetros
+ */
 int paramDefinition(int stackSize);
 
+/**
+ * @brief Função para acessar os parâmetros da função atual
+ * 
+ * @param index Índice do parâmetro desejado (1-based)
+ * @return Parameter* Ponteiro para o parâmetro desejado
+ */
 Parameter *getParameter(int index);
 
 /**
