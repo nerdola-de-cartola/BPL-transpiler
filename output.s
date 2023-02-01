@@ -62,7 +62,7 @@ subq $32, %rsp
 
 movl %edi, -4(%rbp)
 
-leaq (%rdi), %rcx
+leaq (%rsi), %rcx
 movq $0, %rdx
 imulq $4, %rdx
 addq %rcx, %rdx
@@ -73,7 +73,7 @@ movl -4(%rbp), %ecx
 addl -8(%rbp), %ecx
 movl %ecx, -4(%rbp)
 
-leaq (%rdi), %rcx
+leaq (%rsi), %rcx
 movq $1, %rdx
 imulq $4, %rdx
 addq %rcx, %rdx
@@ -84,7 +84,7 @@ movl -4(%rbp), %ecx
 addl -8(%rbp), %ecx
 movl %ecx, -4(%rbp)
 
-leaq (%rdi), %rcx
+leaq (%rsi), %rcx
 movq $2, %rdx
 imulq $4, %rdx
 addq %rcx, %rdx

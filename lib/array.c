@@ -60,11 +60,19 @@ void arrayAccess()
    if (parORvet == 'v') // Vetor de Inteiros
    {
       Variable *vet = getVariable(identifier1);
+
+      if(vet->type != VET)
+         error("Invalid variable for array access");
+
       fprintf(F_OUTPUT, "leaq -%d(%%rbp), %%%s\n", vet->stackPosition, r1->name64);
    }
    else if(parORvet == 'p') // Parâmetro Array
    {
       Parameter *parA = getParameter(identifier1);
+
+      if(parA->type != VET)
+         error("Invalid variable for array access");
+
       fprintf(F_OUTPUT, "leaq (%%%s), %%%s\n", parA->reg->name64, r1->name64);
    }
 
