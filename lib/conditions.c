@@ -33,7 +33,9 @@ void ifStatement()
 
    readNewLine();
 
-   if (charInStr('=', BUFFER)) // atribuição
+   if(strInStr(BUFFER, "call")) // chamada de função
+      callFunction();
+   else if (charInStr('=', BUFFER)) // atribuição
       assignment();
    else if (strInStr(BUFFER, "index")) // acesso a array
       arrayAccess();

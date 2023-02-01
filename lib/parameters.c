@@ -95,6 +95,8 @@ void saveParameters() {
 void restoreParameters() {
    Function *f = getFunction(CURRENT_FUNCTION_INDEX);
    Parameter *p = NULL;
+   char name32[4];
+   char name64[4];   
    int i;
 
    if(f->parameterCount > 0)
@@ -103,7 +105,8 @@ void restoreParameters() {
    for(i = 1; i <= f->parameterCount; i++) {
 
       p = getParameter(i);
-      p->reg = getRegister(NULL, CALLER_SAVED);
+      registerName(i, name32, name64);
+      p->reg = getRegister(name64, CALLER_SAVED);
 
       printParam(p, i);
 

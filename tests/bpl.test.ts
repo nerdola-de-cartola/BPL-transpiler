@@ -51,6 +51,12 @@ const tests = [
     cFilePath: "./variables/t2.c",
     expectedExitCode: 4,
   },
+  {
+    inputPath: "./general/t1.bpl",
+    outputPath: "./general/t1.s",
+    cFilePath: "./general/t1.c",
+    expectedExitCode: 92,
+  }
 ];
 
 test.each(tests)(
