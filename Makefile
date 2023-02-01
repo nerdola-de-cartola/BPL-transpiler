@@ -39,4 +39,4 @@ clear:
 	rm -rf bin/*.exe
 
 run:
-	./bpl.exe tests/functions/t1.bpl output.s
+	./bpl.exe tests/general/t1.bpl output.s

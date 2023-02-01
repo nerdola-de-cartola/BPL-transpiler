@@ -11,8 +11,6 @@ movq %rsp, %rbp
 # pa3 -> %rdx | -24(%rbp)
 subq $32, %rsp
 
-movl $0, -4(%rbp)
-
 cmpl $0, %edi
 je .if0
 # salvando registradores caller saved
@@ -27,22 +25,25 @@ movq -24(%rbp), %rsi
 call f2
 
 # recuperando registradores caller saved
-# pi1 -> %ecx | -8(%rbp)
-movl -8(%rbp), %ecx
-# pi2 -> %edx | -12(%rbp)
-movl -12(%rbp), %edx
-# pa3 -> %rsi | -24(%rbp)
-movq -24(%rbp), %rsi
+# pi1 -> %edi | -8(%rbp)
+movl -8(%rbp), %edi
+# pi2 -> %esi | -12(%rbp)
+movl -12(%rbp), %esi
+# pa3 -> %rdx | -24(%rbp)
+movq -24(%rbp), %rdx
 
 # return
 movl %eax, -4(%rbp)
 .if0:
 
-movl -4(%rbp), %edi
-imull %ecx, %edi
-movl %edi, -4(%rbp)
-
+cmpl $0, %edi
+je .if1
 movl -4(%rbp), %eax
+leave
+ret
+.if1:
+
+movl %esi, %eax
 leave
 ret
 
@@ -59,6 +60,8 @@ movq %rsp, %rbp
 # pa2 -> %rsi | -24(%rbp)
 subq $32, %rsp
 
+movl %edi, -4(%rbp)
+
 leaq (%rdi), %rcx
 movq $0, %rdx
 imulq $4, %rdx
@@ -66,7 +69,8 @@ addq %rcx, %rdx
 movl (%rdx), %edx
 movl %edx, -8(%rbp)
 
-movl -8(%rbp), %ecx
+movl -4(%rbp), %ecx
+addl -8(%rbp), %ecx
 movl %ecx, -4(%rbp)
 
 leaq (%rdi), %rcx
