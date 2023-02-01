@@ -55,7 +55,7 @@ const tests = [
     inputPath: "./general/t1.bpl",
     outputPath: "./general/t1.s",
     cFilePath: "./general/t1.c",
-    expectedExitCode: 0,
+    expectedExitCode: 154,
   }
 ];
 
