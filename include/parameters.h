@@ -21,10 +21,24 @@ int paramDefinition(int stackSize);
 
 Parameter *getParameter(int index);
 
+/**
+ * @brief Salva os parâmetros da função (assembly)
+*/
 void saveParameters();
 
+/**
+ * @brief Restaura os parâmetros da função (assembly)
+ * @return void
+*/
 void restoreParameters();
 
+/**
+ * @brief Passa os parâmetros para a função
+ * @param qtd Quantidade de parâmetros
+ * @param category Categoria do parâmetro (constante, variável ou parâmetro)
+ * @param type Tipo do valor na categoria (inteiro ou vetor)
+ * @param index Índice do parâmetro
+*/
 void passParameters(int qtd, char category[3], char type[3], int index[3]);
 
 #endif

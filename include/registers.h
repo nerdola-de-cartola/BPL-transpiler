@@ -20,10 +20,19 @@ typedef struct
    Type type;
 } Register;
 
+/**
+ * @brief Inicializa o vetor de registradores
+ */
 void registersInit();
 
+/**
+ * @brief Retorna um registrador e o marca como ocupado
+ */
 Register *getRegister(char *name64, int type);
 
+/**
+ * @brief Libera um registrador para uso
+ */
 void freeRegister(Register **r);
 
 void registerName(int index, char name32[4], char name64[4]);
