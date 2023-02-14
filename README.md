@@ -21,3 +21,10 @@ Para a realização de testes utilizamos a linguagem typescript e o executor vit
 ## Executar testes
 
 `npm run test`
+
+
+## Programadores
+
+- Matheus Lucas Morais Pires
+- Mateus Kalleb Cintra Bastos
+- Arthur Emanuel Sousa Rezende
